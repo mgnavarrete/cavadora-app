@@ -18,7 +18,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $userId = 3; // Usuario actual (ajustar según tu lógica de auth)
+        $userId = 10; // Usuario actual (ajustar según tu lógica de auth)
         $search = $request->get('search');
 
         // Crear query builder para las órdenes
@@ -116,7 +116,7 @@ class OrderController extends Controller
             ]);
 
             // Asociar la orden con el usuario actual (tabla pivot user_orden)
-            $userId = 3; // Usuario actual (ajustar según tu lógica de auth)
+            $userId = 10; // Usuario actual (ajustar según tu lógica de auth)
             $order->users()->attach($userId);
 
             DB::commit();
@@ -142,7 +142,7 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        $userId = 3; // Usuario actual
+        $userId = 10; // Usuario actual
 
         // Obtener la orden con todas sus relaciones
         $order = Order::with(['shifts', 'payments', 'users'])

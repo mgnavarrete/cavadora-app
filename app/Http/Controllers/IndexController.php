@@ -17,7 +17,7 @@ class IndexController extends Controller
     {
         $this->actualizarPagos();
 
-        $userId = 3;
+        $userId = 10;
 
         // Zona horaria CL
         $now = Carbon::now('America/Santiago');
@@ -136,8 +136,8 @@ class IndexController extends Controller
      */
     public function calendar()
     {
-        $userId = 3; // Ajustar según tu lógica de autenticación
-        
+        $userId = 10; // Ajustar según tu lógica de autenticación
+
         // Obtener todas las órdenes del usuario con sus fechas
         $orders = Order::with('users')
             ->whereHas('users', function ($q) use ($userId) {
@@ -145,7 +145,7 @@ class IndexController extends Controller
             })
             ->whereNotNull('start_date')
             ->get();
-        
+
         // Obtener todos los turnos de las órdenes del usuario
         $shifts = Shift::with(['order'])
             ->whereHas('order.users', function ($q) use ($userId) {
@@ -154,7 +154,7 @@ class IndexController extends Controller
             ->whereNotNull('shift_date')
             ->orderBy('shift_date', 'asc')
             ->get();
-        
+
         return view('pages.calendar.index', compact('orders', 'shifts'));
     }
 
