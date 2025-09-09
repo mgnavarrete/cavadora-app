@@ -1,0 +1,55 @@
+re-agnedar por si hay hora ocupada
+ver disponibilidad
+
+si agendo hora ver cuando esta disponible
+horario de reunion fijo 
+Calendario con cosas
+
+Poder notificar por wsp o msj de texto
+
+
+9:30 a 10:15
+10:30 a 11:15
+11:30 a 12:15
+12:30 a 13:15
+Almuerzo
+14:30 a 15:15
+15:30 a 16:30
+
+Reuniones 10:00 a 13:00 1 hr cada una
+10:00 a 11:00
+11:00 a 12:00
+12:00 a 13:00
+13:00 a 14:00 
+
+
+Lunes, Martes, Miercoles, Jueves, Viernes
+
+Reuniones todo el lunes de 10:00 a 13:00
+
+5 calses mañana 45 min
+1 taller 1hr
+
+- Ingresar Alumno
+- confirmar hr
+- No aviso, cobra Categoria nuevo
+
+- Generar pagos automaticos, ver como avisar. Mandar por mail.
+
+- Generar sessions todo año
+- cumpleaños niños
+- Agregar Direccion
+
+
+
+Iniciamos con Modificar BBDD
+
+- Pacientes , Agregar columna de dirección
+- Sesiones Agregar columna del año para saber si es de este año o de pasados, agregar hora de inicio y fin
+- Estados de Sesiones, Agregar estado de no avisó, agregar hora de inicio y fin. 
+- Crear tabla de reuniones con fecha, hora, paciente, estado(realizada, cancelada, pendiente), valor
+
+- no poder editar Sesiones, pero si estado Sesiones.
+
+
+
