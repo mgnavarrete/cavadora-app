@@ -58,12 +58,16 @@
 
                         <!-- Hora de Fin -->
                         <div class="col-md-6 mb-3">
-                            <label for="end_time" class="form-label text-default">Hora de Fin <span class="text-muted">(Opcional)</span></label>
+                            <label for="end_time" class="form-label text-default">Hora de Fin <span class="text-danger">*</span></label>
                             <div class="form-group">
                                 <div class="input-group">
                                     <div class="input-group-text text-muted"><i class="ri-time-line"></i></div>
-                                    <input type="time" class="form-control" id="end_time" name="end_time">
+                                    <input type="time" class="form-control" id="end_time" name="end_time" required>
                                 </div>
+                            </div>
+                            <div class="form-text text-muted">
+                                <i class="ri-information-line me-1"></i>
+                                Mínimo 8 horas de duración por turno
                             </div>
                         </div>
 
@@ -118,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Validar que la hora de fin sea posterior a la de inicio
+    // Validar que la hora de fin sea posterior a la de inicio y tenga mínimo 8 horas
     const startTimeInput = document.getElementById('start_time');
     const endTimeInput = document.getElementById('end_time');
     
@@ -127,10 +131,25 @@ document.addEventListener('DOMContentLoaded', function() {
             const startTime = startTimeInput.value;
             const endTime = endTimeInput.value;
             
-            if (startTime && endTime && endTime <= startTime) {
-                endTimeInput.setCustomValidity('La hora de fin debe ser posterior a la hora de inicio');
-            } else {
-                endTimeInput.setCustomValidity('');
+            if (startTime && endTime) {
+                // Crear objetos Date para calcular la diferencia
+                const startDate = new Date(`2000-01-01 ${startTime}`);
+                const endDate = new Date(`2000-01-01 ${endTime}`);
+                
+                // Si la hora de fin es menor, asumimos que es al día siguiente
+                if (endDate <= startDate) {
+                    endDate.setDate(endDate.getDate() + 1);
+                }
+                
+                // Calcular diferencia en horas
+                const diffInMs = endDate - startDate;
+                const diffInHours = diffInMs / (1000 * 60 * 60);
+                
+                if (diffInHours < 8) {
+                    endTimeInput.setCustomValidity('El turno debe tener una duración mínima de 8 horas');
+                } else {
+                    endTimeInput.setCustomValidity('');
+                }
             }
         }
         

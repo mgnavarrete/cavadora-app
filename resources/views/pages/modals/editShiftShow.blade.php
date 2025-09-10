@@ -139,10 +139,14 @@
             <!-- Hora Término -->
             <div class="col-md-4 mb-3">
               <label class="form-label fw-semibold" for="end_time{{ $shift->id_shift }}">
-                <i class="ri-time-line me-1"></i>Hora Término
+                <i class="ri-time-line me-1"></i>Hora Término <span class="text-danger">*</span>
               </label>
               <input type="time" class="form-control" id="end_time{{ $shift->id_shift }}" name="end_time" 
-                     value="{{ $shift->end_time ? \Illuminate\Support\Str::of((string)$shift->end_time)->limit(5,'') : '' }}">
+                     value="{{ $shift->end_time ? \Illuminate\Support\Str::of((string)$shift->end_time)->limit(5,'') : '' }}" required>
+              <div class="form-text text-muted">
+                <i class="ri-information-line me-1"></i>
+                Mínimo 8 horas de duración
+              </div>
             </div>
           </div>
 
@@ -222,18 +226,43 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Validación de horas en tiempo real
+  // Validación de horas en tiempo real con mínimo 8 horas
+  function validateShiftDuration(startTimeInput, endTimeInput) {
+    const startTime = startTimeInput.value;
+    const endTime = endTimeInput.value;
+    
+    if (startTime && endTime) {
+      // Crear objetos Date para calcular la diferencia
+      const startDate = new Date(`2000-01-01 ${startTime}`);
+      const endDate = new Date(`2000-01-01 ${endTime}`);
+      
+      // Si la hora de fin es menor, asumimos que es al día siguiente
+      if (endDate <= startDate) {
+        endDate.setDate(endDate.getDate() + 1);
+      }
+      
+      // Calcular diferencia en horas
+      const diffInMs = endDate - startDate;
+      const diffInHours = diffInMs / (1000 * 60 * 60);
+      
+      if (diffInHours < 8) {
+        endTimeInput.setCustomValidity('El turno debe tener una duración mínima de 8 horas');
+        return false;
+      } else {
+        endTimeInput.setCustomValidity('');
+        return true;
+      }
+    }
+    return false;
+  }
+
   document.querySelectorAll('input[name="start_time"]').forEach(function(startTimeInput) {
     startTimeInput.addEventListener('change', function() {
       const formId = this.id.replace('start_time', '');
       const endTimeInput = document.getElementById('end_time' + formId);
       
-      if (endTimeInput && endTimeInput.value && this.value) {
-        if (this.value >= endTimeInput.value) {
-          endTimeInput.setCustomValidity('La hora de término debe ser posterior a la hora de inicio');
-        } else {
-          endTimeInput.setCustomValidity('');
-        }
+      if (endTimeInput) {
+        validateShiftDuration(this, endTimeInput);
       }
     });
   });
@@ -243,12 +272,8 @@ document.addEventListener('DOMContentLoaded', function() {
       const formId = this.id.replace('end_time', '');
       const startTimeInput = document.getElementById('start_time' + formId);
       
-      if (startTimeInput && startTimeInput.value && this.value) {
-        if (startTimeInput.value >= this.value) {
-          this.setCustomValidity('La hora de término debe ser posterior a la hora de inicio');
-        } else {
-          this.setCustomValidity('');
-        }
+      if (startTimeInput) {
+        validateShiftDuration(startTimeInput, this);
       }
     });
   });

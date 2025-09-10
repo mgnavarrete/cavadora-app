@@ -133,7 +133,7 @@
             <div class="col-12">
               <div class="alert alert-info">
                 <i class="ri-information-line me-2"></i>
-                <strong>Nota:</strong> Los cambios se guardarán automáticamente. Para editar horarios, utiliza el modal completo desde la página de detalles.
+                <strong>Nota:</strong> Los cambios se guardarán automáticamente. Para editar horarios (que requieren mínimo 8 horas de duración), utiliza el modal completo desde la página de detalles.
               </div>
             </div>
           </div>

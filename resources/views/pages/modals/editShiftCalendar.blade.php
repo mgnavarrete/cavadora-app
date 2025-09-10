@@ -82,7 +82,7 @@
                         <div class="col-12">
                             <div class="alert alert-info">
                                 <i class="ri-information-line me-2"></i>
-                                <strong>Nota:</strong> Los cambios se guardarán automáticamente y se reflejarán en el calendario.
+                                <strong>Nota:</strong> Los cambios se guardarán automáticamente y se reflejarán en el calendario. Para editar horarios, todos los turnos deben tener una duración mínima de 8 horas.
                             </div>
                         </div>
                     </div>
