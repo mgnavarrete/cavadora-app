@@ -13,6 +13,13 @@
                     <i class="ri-dashboard-3-line me-2"></i>Dashboard Financiero
                 </h1>
                 <p class="text-muted mb-0">Análisis y métricas de ingresos</p>
+                @if(!$tieneDatosReales)
+                    <div class="alert alert-info alert-dismissible fade show mt-2" role="alert">
+                        <i class="ri-information-line me-2"></i>
+                        <strong>Datos de ejemplo:</strong> Se están mostrando datos de demostración. Una vez que tengas pagos reales, se mostrarán tus datos reales.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
             </div>
             {{-- <div class="btn-list">
                 <button class="btn btn-primary" onclick="window.print()">
@@ -196,16 +203,16 @@
                 </div>
             </div>
 
-            <!-- Top 5 Clientes -->
+            <!-- Top 5 Pacientes -->
             <div class="col-xl-6 col-lg-12">
                 <div class="card custom-card">
                     <div class="card-header">
                         <div class="card-title">
-                            <i class="ri-user-star-line me-2"></i>Top 5 Clientes por Ingresos
+                            <i class="ri-user-star-line me-2"></i>Top 5 Pacientes por Ingresos
                         </div>
                     </div>
                     <div class="card-body">
-                        <canvas id="topClientesChart" height="250"></canvas>
+                        <canvas id="topPacientesChart" height="250"></canvas>
                     </div>
                 </div>
             </div>
@@ -214,7 +221,7 @@
         <!-- Tercera Fila de Gráficos -->
         <div class="row">
             <!-- Tendencia Anual -->
-            <div class="col-xl-8 col-lg-12">
+            <div class="col-xl-12 col-lg-12">
                 <div class="card custom-card">
                     <div class="card-header">
                         <div class="card-title">
@@ -223,33 +230,6 @@
                     </div>
                     <div class="card-body">
                         <canvas id="tendenciaAnualChart" height="300"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Ingresos por Tipo -->
-            <div class="col-xl-4 col-lg-12">
-                <div class="card custom-card">
-                    <div class="card-header">
-                        <div class="card-title">
-                            <i class="ri-donut-chart-line me-2"></i>Ingresos por Tipo
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="ingresosTipoChart" height="250"></canvas>
-                        <div class="mt-3">
-                            @foreach($ingresosPorTipo as $tipo)
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <div class="d-flex align-items-center">
-                                    <span class="avatar avatar-xs me-2 
-                                        @if($tipo['tipo'] == 'Mano de Obra') bg-primary 
-                                        @else bg-info @endif"></span>
-                                    <span class="fs-12">{{ $tipo['tipo'] }}</span>
-                                </div>
-                                <span class="fw-semibold">${{ number_format($tipo['valor'], 0, ',', '.') }}</span>
-                            </div>
-                            @endforeach
-                        </div>
                     </div>
                 </div>
             </div>
@@ -281,7 +261,7 @@
                             <div class="col-md-3">
                                 <div class="border-end">
                                     <h4 class="fw-semibold text-warning">{{ $metricas['clientes_activos'] }}</h4>
-                                    <p class="text-muted mb-0">Clientes Activos</p>
+                                    <p class="text-muted mb-0">Pacientes Activos</p>
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -308,9 +288,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const ingresosPorMes = @json($ingresosPorMes);
     const comparacionMensual = @json($comparacionMensual);
     const estadosPagos = @json($estadosPagos);
-    const topClientes = @json($topClientes);
+    const topPacientes = @json($topClientes);
     const tendenciaAnual = @json($tendenciaAnual);
     const ingresosPorTipo = @json($ingresosPorTipo);
+    
+    // Debug: Mostrar datos en consola
+    console.log('Datos del Dashboard:');
+    console.log('Ingresos por Mes:', ingresosPorMes);
+    console.log('Comparación Mensual:', comparacionMensual);
+    console.log('Estados Pagos:', estadosPagos);
+    console.log('Top Pacientes:', topPacientes);
+    console.log('Tendencia Anual:', tendenciaAnual);
+    console.log('Ingresos por Tipo:', ingresosPorTipo);
 
     // Gráfico de Ingresos Mensuales
     const ctxIngresos = document.getElementById('ingresosMensualesChart').getContext('2d');
@@ -367,51 +356,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Gráfico de Estados de Pagos
-    const ctxEstados = document.getElementById('estadosPagosChart').getContext('2d');
-    new Chart(ctxEstados, {
-        type: 'doughnut',
-        data: {
-            labels: estadosPagos.map(item => item.estado),
-            datasets: [{
-                data: estadosPagos.map(item => item.total),
-                backgroundColor: [
-                    'rgba(34, 197, 94, 0.8)',
-                    'rgba(251, 191, 36, 0.8)',
-                    'rgba(239, 68, 68, 0.8)'
-                ],
-                borderColor: [
-                    'rgb(34, 197, 94)',
-                    'rgb(251, 191, 36)',
-                    'rgb(239, 68, 68)'
-                ],
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: 'white',
-                    bodyColor: 'white',
-                    callbacks: {
-                        label: function(context) {
-                            return context.label + ': $' + new Intl.NumberFormat().format(context.parsed);
-                        }
-                    }
-                }
-            }
-        }
-    });
-
     // Gráfico de Comparación Mensual
     const ctxComparacion = document.getElementById('comparacionMensualChart').getContext('2d');
-    new Chart(ctxComparacion, {
+    
+    // Verificar si hay datos para mostrar
+    if (comparacionMensual && comparacionMensual.length > 0) {
+        new Chart(ctxComparacion, {
         type: 'line',
         data: {
             labels: comparacionMensual.map(item => item.mes),
@@ -467,16 +417,22 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+    } else {
+        // Mostrar mensaje si no hay datos
+        ctxComparacion.canvas.parentNode.innerHTML = '<div class="text-center text-muted p-4"><i class="ri-bar-chart-line fs-24 mb-2"></i><p>No hay datos disponibles para mostrar</p></div>';
+    }
 
-    // Gráfico Top Clientes
-    const ctxTopClientes = document.getElementById('topClientesChart').getContext('2d');
-    new Chart(ctxTopClientes, {
+    // Gráfico Top Pacientes
+    const ctxTopPacientes = document.getElementById('topPacientesChart').getContext('2d');
+    
+    if (topPacientes && topPacientes.length > 0) {
+        new Chart(ctxTopPacientes, {
         type: 'bar',
         data: {
-            labels: topClientes.map(item => item.nombre),
+            labels: topPacientes.map(item => item.nombre),
             datasets: [{
                 label: 'Ingresos Totales ($)',
-                data: topClientes.map(item => item.total),
+                data: topPacientes.map(item => item.total),
                 backgroundColor: [
                     'rgba(34, 197, 94, 0.8)',
                     'rgba(79, 70, 229, 0.8)',
@@ -533,10 +489,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
+    } else {
+        // Mostrar mensaje si no hay datos
+        ctxTopPacientes.canvas.parentNode.innerHTML = '<div class="text-center text-muted p-4"><i class="ri-user-star-line fs-24 mb-2"></i><p>No hay datos disponibles para mostrar</p></div>';
+    }
 
     // Gráfico Tendencia Anual
     const ctxTendencia = document.getElementById('tendenciaAnualChart').getContext('2d');
-    new Chart(ctxTendencia, {
+    
+    if (tendenciaAnual && tendenciaAnual.length > 0) {
+        new Chart(ctxTendencia, {
         type: 'line',
         data: {
             labels: tendenciaAnual.map(item => item.mes),
@@ -598,46 +560,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-
-    // Gráfico Ingresos por Tipo
-    const ctxTipo = document.getElementById('ingresosTipoChart').getContext('2d');
-    new Chart(ctxTipo, {
-        type: 'pie',
-        data: {
-            labels: ingresosPorTipo.map(item => item.tipo),
-            datasets: [{
-                data: ingresosPorTipo.map(item => item.valor),
-                backgroundColor: [
-                    'rgba(79, 70, 229, 0.8)',
-                    'rgba(14, 165, 233, 0.8)'
-                ],
-                borderColor: [
-                    'rgb(79, 70, 229)',
-                    'rgb(14, 165, 233)'
-                ],
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                    titleColor: 'white',
-                    bodyColor: 'white',
-                    callbacks: {
-                        label: function(context) {
-                            return context.label + ': $' + new Intl.NumberFormat().format(context.parsed);
-                        }
-                    }
-                }
-            }
-        }
-    });
+    } else {
+        // Mostrar mensaje si no hay datos
+        ctxTendencia.canvas.parentNode.innerHTML = '<div class="text-center text-muted p-4"><i class="ri-line-chart-line fs-24 mb-2"></i><p>No hay datos disponibles para mostrar</p></div>';
+    }
 });
 
 // Función para exportar datos

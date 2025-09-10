@@ -27,6 +27,9 @@ class DashboardController extends Controller
         $mesAnterior = $now->copy()->subMonth();
         $mesAnteAnterior = $now->copy()->subMonths(2);
         
+        // Verificar si hay datos reales
+        $tieneDatosReales = $this->verificarDatosReales($userId);
+        
         // Calcular métricas principales
         $metricas = $this->calcularMetricas($userId, $mesActual, $mesAnterior, $mesAnteAnterior);
         
@@ -45,8 +48,21 @@ class DashboardController extends Controller
             'estadosPagos',
             'topClientes',
             'tendenciaAnual',
-            'ingresosPorTipo'
+            'ingresosPorTipo',
+            'tieneDatosReales'
         ));
+    }
+    
+    /**
+     * Verificar si hay datos reales en el sistema.
+     */
+    private function verificarDatosReales($userId)
+    {
+        $pagosCount = Payment::whereHas('order.users', function ($q) use ($userId) {
+            $q->where('users.id', $userId);
+        })->count();
+        
+        return $pagosCount > 0;
     }
     
     /**
@@ -150,6 +166,8 @@ class DashboardController extends Controller
             9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
         ];
         
+        $totalAnual = 0;
+        
         for ($mes = 1; $mes <= 12; $mes++) {
             $total = Payment::whereHas('order.users', function ($q) use ($userId) {
                 $q->where('users.id', $userId);
@@ -162,10 +180,25 @@ class DashboardController extends Controller
                 return $payment->total_amount;
             });
             
+            $totalAnual += $total;
+            
             $ingresos[] = [
                 'mes' => $meses[$mes],
                 'total' => $total
             ];
+        }
+        
+        // Si no hay datos, agregar datos de ejemplo
+        if ($totalAnual == 0) {
+            $ingresos = [];
+            $valores = [150000, 180000, 200000, 220000, 250000, 280000, 300000, 320000, 350000, 380000, 400000, 450000];
+            
+            for ($mes = 1; $mes <= 12; $mes++) {
+                $ingresos[] = [
+                    'mes' => $meses[$mes],
+                    'total' => $valores[$mes - 1]
+                ];
+            }
         }
         
         return $ingresos;
@@ -228,6 +261,16 @@ class DashboardController extends Controller
             'mes' => $mesActual->locale('es')->monthName,
             'ingresos' => $total
         ];
+        
+        // Si todos los meses tienen 0, agregar datos de ejemplo
+        $totalGeneral = array_sum(array_column($meses, 'ingresos'));
+        if ($totalGeneral == 0) {
+            $meses = [
+                ['mes' => $mesAnteAnterior->locale('es')->monthName, 'ingresos' => 150000],
+                ['mes' => $mesAnterior->locale('es')->monthName, 'ingresos' => 200000],
+                ['mes' => $mesActual->locale('es')->monthName, 'ingresos' => 250000],
+            ];
+        }
         
         return $meses;
     }
@@ -330,10 +373,24 @@ class DashboardController extends Controller
                 'total' => $total
             ];
         })
+        ->filter(function ($cliente) {
+            return $cliente['total'] > 0; // Solo clientes con ingresos
+        })
         ->sortByDesc('total')
         ->take(5)
         ->values()
         ->toArray();
+        
+        // Si no hay clientes con ingresos, agregar datos de ejemplo
+        if (empty($clientes)) {
+            $clientes = [
+                ['nombre' => 'Cliente Ejemplo 1', 'total' => 500000],
+                ['nombre' => 'Cliente Ejemplo 2', 'total' => 350000],
+                ['nombre' => 'Cliente Ejemplo 3', 'total' => 200000],
+                ['nombre' => 'Cliente Ejemplo 4', 'total' => 150000],
+                ['nombre' => 'Cliente Ejemplo 5', 'total' => 100000],
+            ];
+        }
         
         return $clientes;
     }
@@ -349,6 +406,9 @@ class DashboardController extends Controller
             5 => 'May', 6 => 'Jun', 7 => 'Jul', 8 => 'Ago',
             9 => 'Sep', 10 => 'Oct', 11 => 'Nov', 12 => 'Dic'
         ];
+        
+        $totalActual = 0;
+        $totalAnterior = 0;
         
         for ($mes = 1; $mes <= 12; $mes++) {
             // Año actual
@@ -375,11 +435,29 @@ class DashboardController extends Controller
                 return $payment->total_amount;
             });
             
+            $totalActual += $añoActual;
+            $totalAnterior += $añoAnterior;
+            
             $tendencia[] = [
                 'mes' => $meses[$mes],
                 'año_actual' => $añoActual,
                 'año_anterior' => $añoAnterior
             ];
+        }
+        
+        // Si no hay datos, agregar datos de ejemplo
+        if ($totalActual == 0 && $totalAnterior == 0) {
+            $tendencia = [];
+            $valoresActual = [100000, 120000, 150000, 180000, 200000, 220000, 250000, 280000, 300000, 320000, 350000, 400000];
+            $valoresAnterior = [80000, 100000, 120000, 140000, 160000, 180000, 200000, 220000, 240000, 260000, 280000, 300000];
+            
+            for ($mes = 1; $mes <= 12; $mes++) {
+                $tendencia[] = [
+                    'mes' => $meses[$mes],
+                    'año_actual' => $valoresActual[$mes - 1],
+                    'año_anterior' => $valoresAnterior[$mes - 1]
+                ];
+            }
         }
         
         return $tendencia;
@@ -423,6 +501,15 @@ class DashboardController extends Controller
             'tipo' => 'Gastos Extras',
             'valor' => $extras
         ];
+        
+        // Si no hay datos, agregar datos de ejemplo
+        $total = $manoObra + $extras;
+        if ($total == 0) {
+            $tipos = [
+                ['tipo' => 'Mano de Obra', 'valor' => 800000],
+                ['tipo' => 'Gastos Extras', 'valor' => 200000],
+            ];
+        }
         
         return $tipos;
     }
