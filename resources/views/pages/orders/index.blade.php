@@ -68,7 +68,8 @@
                         @php
                         $coverImageNumber = rand(1, 6);
                         $estadoColor = match($cliente->estado) {
-                            'confirmed' => 'bg-warning',
+                            'confirmed' => 'bg-primary',
+                            'not_confirmed' => 'bg-warning',
                             'in_progress' => 'bg-secondary',
                             'done' => 'bg-success',
                             'canceled' => 'bg-danger',
@@ -77,6 +78,7 @@
                         $estadoTexto = match($cliente->estado) {
                             'confirmed' => 'Confirmado',
                             'done' => 'Completado',
+                            'not_confirmed' => 'No Confirmado',
                             'canceled' => 'Cancelado',
                             'in_progress' => 'En Progreso',
                             default => 'Sin Estado'

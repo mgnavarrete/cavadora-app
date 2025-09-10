@@ -34,6 +34,7 @@
         $coverImageNumber = rand(1, 6);
         $estadoColor = match(strtolower($order->estado)) {
             'confirmed' => 'bg-warning',
+            'not_confirmed' => 'bg-primary',
             'done' => 'bg-success',
             'in_progress' => 'bg-secondary',
             'canceled' => 'bg-danger',
@@ -42,6 +43,7 @@
         $estadoTexto = match(strtolower($order->estado)) {
             'done' => 'Completado',
             'confirmed' => 'Confirmado',
+            'not_confirmed' => 'No Confirmado',
             'in_progress' => 'En Progreso',
             'canceled' => 'Cancelado',
             default => $order->estado ?? 'Sin Estado'

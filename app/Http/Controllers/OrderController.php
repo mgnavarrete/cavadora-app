@@ -39,11 +39,12 @@ class OrderController extends Controller
         // Ordenar órdenes: primero por estado (in_progress, done, canceled) y luego por más recientes
         $orders = $query->orderByRaw("
             CASE estado 
-                WHEN 'confirmed' THEN 1
-                WHEN 'in_progress' THEN 2 
-                WHEN 'done' THEN 3 
-                WHEN 'canceled' THEN 4 
-                ELSE 5 
+                WHEN 'not_confirmed' THEN 1
+                WHEN 'confirmed' THEN 2
+                WHEN 'in_progress' THEN 3 
+                WHEN 'done' THEN 4
+                WHEN 'canceled' THEN 5 
+                ELSE 6 
             END
         ")
             ->orderBy('created_at', 'desc') // Más recientes primero dentro de cada estado
@@ -75,7 +76,7 @@ class OrderController extends Controller
             'client_address' => 'required|string|max:500',
             'client_info' => 'nullable|string',
             'work_info' => 'required|string',
-            'estado' => 'required|in:in_progress,done,canceled,confirmed',
+            'estado' => 'required|in:in_progress,done,canceled,confirmed, not_confirmed',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'hour_cost' => 'required|string',
@@ -106,7 +107,7 @@ class OrderController extends Controller
                 'hour_cost' => $this->parseCurrency($request->hour_cost),
                 'extra_cost' => $this->parseCurrency($request->extra_cost ?? '0'),
                 'info_extra_cost' => $request->info_extra_cost,
-                'status' => 'confirmed', // Siempre pendiente al crear
+                'status' => 'pending', // Siempre pendiente al crear
                 'emission_date' => $request->start_date, // Fecha de emisión = fecha fin del trabajo
                 'payment_date' => null, // Se llena cuando se pague
                 'description' => '', // Descripción vacía por defecto
@@ -221,7 +222,7 @@ class OrderController extends Controller
             'client_phone' => 'nullable|string|max:15',
             'client_address' => 'nullable|string|max:255',
             'work_info' => 'required|string|max:500',
-            'estado' => 'required|in:in_progress,done,canceled,confirmed',
+            'estado' => 'required|in:in_progress,done,canceled,confirmed,not_confirmed',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'hour_cost' => 'nullable|string',
@@ -338,7 +339,7 @@ class OrderController extends Controller
                 'client_address' => $request->client_address,
                 'client_info' => null, // No se incluye información adicional
                 'work_info' => $request->work_info,
-                'estado' => 'confirmed', // Estado por defecto
+                'estado' => 'not_confirmed', // Estado por defecto
                 'start_date' => $fechaInicio,
                 'end_date' => $fechaFin,
             ]);
@@ -346,7 +347,7 @@ class OrderController extends Controller
             // Crear el pago asociado con valores automáticos
             $payment = Payment::create([
                 'id_order' => $order->id_order,
-                'emission_date' => $fechaFin, // Fecha de emisión = fecha de fin
+                'emission_date' => $fechaInicio, // Fecha de emisión = fecha de fin
                 'payment_date' => null, // Se llenará cuando se pague
                 'status' => 'pending', // Estado por defecto
                 'description' => 'Pago por servicios de excavación - ' . $order->client_name,

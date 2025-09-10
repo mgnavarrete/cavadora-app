@@ -90,6 +90,7 @@
                                 <i class="ri-flag-line me-1"></i>Estado del Trabajo <span class="text-danger">*</span>
                             </label>
                             <select class="form-select" id="estado" name="estado" required>
+                                <option value="not_confirmed" {{ $order->estado === 'not_confirmed' ? 'selected' : '' }}>No Confirmado</option>
                                 <option value="confirmed" {{ $order->estado === 'confirmed' ? 'selected' : '' }}>Confirmado</option>
                                 <option value="in_progress" {{ $order->estado === 'in_progress' ? 'selected' : '' }}>En Progreso</option>
                                 <option value="done" {{ $order->estado === 'done' ? 'selected' : '' }}>Completado</option>
