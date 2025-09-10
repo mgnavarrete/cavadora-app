@@ -21,11 +21,15 @@ use App\Http\Controllers\DashboardController;
 
 // AUTHENTICATION //
 Route::get('/', function () {
+    return view('landingIndex');
+})->name('inicio');  // Muestra el landing page de La Cavadora
+
+Route::get('/login', function () {
     if (auth()->check()) {
         return redirect()->route('index');
     }
     return view('pages.inicio');
-})->name('inicio');  // Redirige a 'index' si el usuario está autenticado, de lo contrario muestra 'inicio'
+})->name('login.page');  // Página de login separada
 
 // // LOGIN //
 Route::post('/registrar', [LoginController::class, 'registrar'])->name('registrar');
