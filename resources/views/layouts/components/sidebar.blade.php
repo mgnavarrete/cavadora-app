@@ -34,6 +34,15 @@
                     </a>
                 </li>
                 <!-- End::slide -->
+
+                <!-- Start::slide -->
+                <li class="slide" >
+                    <a href="{{route('dashboard.index')}}" class="side-menu__item">
+                        <i class="ti ti-layout-dashboard side-menu__icon"></i>
+                        <span class="side-menu__label">Dashboard</span>
+                    </a>
+                </li>
+                <!-- End::slide -->
     
                 <li class="slide" >
                     <a href="{{route('orders.index')}}" class="side-menu__item">

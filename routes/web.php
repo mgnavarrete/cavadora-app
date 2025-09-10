@@ -7,6 +7,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ShiftController;
+use App\Http\Controllers\DashboardController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -35,6 +36,9 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('index', [IndexController::class, 'index'])->name('index');
     Route::get('calendar', [IndexController::class, 'calendar'])->name('calendar');
+
+    # DASHBOARD
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
 
     # PAYMENTS
