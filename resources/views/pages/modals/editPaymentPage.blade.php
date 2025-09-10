@@ -151,7 +151,7 @@
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
           <i class="ri-close-line me-1"></i>Cancelar
         </button>
-        <button type="submit" form="form-edit-payment-{{ $payment->id_payment }}" class="btn btn-success" id="guardarBtnEditPayment{{ $payment->id_payment }}">
+        <button type="submit" class="btn btn-success" id="guardarBtnEditPayment{{ $payment->id_payment }}" onclick="document.querySelector('.form-edit-payment[data-form-id=&quot;{{ $payment->id_payment }}&quot;]').submit()">
           <i class="ri-save-line me-1"></i>Guardar Cambios
         </button>
       </div>

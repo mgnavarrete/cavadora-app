@@ -50,9 +50,9 @@
                             </label>
                             <select class="form-select" id="modal-status" name="status" required>
                                 <option value="pending">Pendiente</option>
-                                <option value="in_progress">En Proceso</option>
                                 <option value="completed">Completado</option>
-                                <option value="cancelled">Cancelado</option>
+                                <option value="canceled">Cancelado</option>
+                                <option value="rescheduled">Reprogramado</option>
                             </select>
                         </div>
 
@@ -97,7 +97,7 @@
                     <i class="ri-save-line me-1"></i>Guardar Cambios
                 </button>
                 <button type="button" class="btn btn-primary" id="viewOrderDetails">
-                    <i class="ri-external-link-line me-1"></i>Ver Orden Completa
+                    <i class="ri-external-link-line me-1"></i>Ver Detalles
                 </button>
             </div>
         </div>
@@ -144,9 +144,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function getStatusBadgeClass(status) {
         switch(status) {
             case 'completed': return 'bg-success';
-            case 'in_progress': return 'bg-info';
             case 'pending': return 'bg-secondary';
-            case 'cancelled': return 'bg-danger';
+            case 'canceled': return 'bg-danger';
+            case 'rescheduled': return 'bg-warning';
             default: return 'bg-secondary';
         }
     }
@@ -155,9 +155,9 @@ document.addEventListener('DOMContentLoaded', function() {
     function getStatusText(status) {
         switch(status) {
             case 'completed': return 'Completado';
-            case 'in_progress': return 'En Proceso';
             case 'pending': return 'Pendiente';
-            case 'cancelled': return 'Cancelado';
+            case 'canceled': return 'Cancelado';
+            case 'rescheduled': return 'Reprogramado';
             default: return 'Pendiente';
         }
     }
@@ -166,6 +166,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('saveShiftChanges').addEventListener('click', function() {
         const form = document.getElementById('editShiftCalendarForm');
         const formData = new FormData(form);
+        
+        // Agregar el método PUT y token CSRF
+        formData.append('_method', 'PUT');
+        formData.append('_token', document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}');
         
         const submitBtn = this;
         const originalText = submitBtn.innerHTML;
@@ -182,7 +186,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Accept': 'application/json'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 // Mostrar mensaje de éxito

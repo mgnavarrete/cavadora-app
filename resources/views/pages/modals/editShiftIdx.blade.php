@@ -148,7 +148,7 @@
         <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">
           <i class="ri-close-line me-1"></i>Cancelar
         </button>
-        <button type="submit" form="form-edit-shift-{{ $shift->id_shift }}" class="btn btn-success" id="guardarBtnEditShift{{ $shift->id_shift }}">
+        <button type="submit" class="btn btn-success" id="guardarBtnEditShift{{ $shift->id_shift }}" onclick="document.querySelector('.form-edit-shift[data-form-id=&quot;{{ $shift->id_shift }}&quot;]').submit()">
           <i class="ri-save-line me-1"></i>Guardar Cambios
         </button>
       </div>
