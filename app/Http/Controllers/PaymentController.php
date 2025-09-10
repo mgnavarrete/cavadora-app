@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Models\Payment;
 use App\Models\Shift;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class PaymentController extends Controller
 {
@@ -67,49 +66,9 @@ class PaymentController extends Controller
     }
 
     /**
-     * Generar PDF del pago para descarga directa.
+     * Generar PDF del pago para impresión.
      */
     public function generatePDF($id)
-    {
-        $payment = Payment::with(['order.shifts', 'order.users'])
-            ->findOrFail($id);
-
-        // Obtener los turnos relacionados con la orden del pago
-        $shifts = $payment->order ? $payment->order->shifts()->orderBy('shift_date', 'asc')->get() : collect();
-
-        // Calcular el total del pago usando el nuevo método
-        $totalPago = $payment->total_amount;
-
-        // Crear nombre del archivo
-        $clientName = $payment->order ? $payment->order->client_name : 'Cliente';
-        $fecha = $payment->emission_date ? $payment->emission_date->format('Y-m') : date('Y-m');
-        $fileName = "Pago_{$clientName}_{$fecha}.pdf";
-
-        // Generar el PDF usando DomPDF
-        $pdf = Pdf::loadView('pages.pdf.pago-download', compact('payment', 'shifts', 'totalPago'))
-            ->setPaper('letter', 'portrait')
-            ->setOptions([
-                'defaultFont' => 'DejaVu Sans',
-                'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled' => false,
-                'debugKeepTemp' => false,
-                'debugCss' => false,
-                'debugLayout' => false,
-                'debugLayoutLines' => false,
-                'debugLayoutBlocks' => false,
-                'debugLayoutInline' => false,
-                'debugLayoutPaddingBox' => false,
-                'chroot' => public_path(),
-            ]);
-
-        // Descargar el PDF directamente
-        return $pdf->download($fileName);
-    }
-
-    /**
-     * Mostrar vista de impresión del pago (método alternativo).
-     */
-    public function showPrintView($id)
     {
         $payment = Payment::with(['order.shifts', 'order.users'])
             ->findOrFail($id);

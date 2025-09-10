@@ -153,11 +153,9 @@
         <div class="card custom-card">
             <div class="card-header compact-section">
                 <div class="d-flex align-items-center">
-                    <div class="avatar avatar-sm me-2">
-                        <img src="{{asset('build/assets/images/brand-logos/toggle-logo.png')}}" style="width: 35px; height: 35px;" alt="">
-                    </div>
+                   
                     <div>
-                        <div class="h6 fw-semibold mb-0">PAGO #{{ $payment->id_payment }} - {{ $payment->order ? $payment->order->client_name : 'Cliente' }}</div>
+                        <div class="h6 fw-semibold mb-0">LAS CAVADORAS SERVICIOS - DETALLE DE PAGO #0{{ $payment->id_payment }}</div>
                         <div class="small text-muted">{{ ucfirst(\Carbon\Carbon::parse($payment->emission_date)->translatedFormat('F Y')) }}</div>
                     </div>
                 </div>
@@ -352,7 +350,13 @@
         </div>
     </div>
 </div>
-<!-- Script de auto-impresión removido para descarga directa de PDF -->
+<script>
+    // Espera a que la página se cargue completamente
+    window.onload = function() {
+        // Llama a la función de impresión
+        window.print();
+    };
+</script>
         @include('layouts.components.scripts')
 
         @yield('scripts')

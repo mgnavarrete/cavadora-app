@@ -38,7 +38,7 @@
                     </div>
                     <div class="ms-auto mt-md-0 mt-2">
                         <button class="btn btn-success" onclick="window.open('{{ route('payments.pdf', $payment->id_payment) }}', '_blank')">
-                            Imprimir PDF <i class="ri-printer-line ms-1 align-middle"></i>
+                            Descargar PDF <i class="ri-printer-line ms-1 align-middle"></i>
                         </button>
                         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editPayment{{ $payment->id_payment }}">
                             Editar Pago<i class="ri-edit-line ms-1 align-middle"></i>
