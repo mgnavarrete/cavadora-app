@@ -226,56 +226,75 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Validación de horas en tiempo real con mínimo 8 horas
-  function validateShiftDuration(startTimeInput, endTimeInput) {
-    const startTime = startTimeInput.value;
-    const endTime = endTimeInput.value;
-    
-    if (startTime && endTime) {
-      // Crear objetos Date para calcular la diferencia
-      const startDate = new Date(`2000-01-01 ${startTime}`);
-      const endDate = new Date(`2000-01-01 ${endTime}`);
-      
-      // Si la hora de fin es menor, asumimos que es al día siguiente
-      if (endDate <= startDate) {
-        endDate.setDate(endDate.getDate() + 1);
-      }
-      
-      // Calcular diferencia en horas
-      const diffInMs = endDate - startDate;
-      const diffInHours = diffInMs / (1000 * 60 * 60);
-      
-      if (diffInHours < 8) {
-        endTimeInput.setCustomValidity('El turno debe tener una duración mínima de 8 horas');
-        return false;
-      } else {
-        endTimeInput.setCustomValidity('');
-        return true;
-      }
-    }
-    return false;
-  }
-
+  // Auto-calcular hora de fin y validar mínimo 8 horas para cada modal
   document.querySelectorAll('input[name="start_time"]').forEach(function(startTimeInput) {
-    startTimeInput.addEventListener('change', function() {
-      const formId = this.id.replace('start_time', '');
-      const endTimeInput = document.getElementById('end_time' + formId);
-      
-      if (endTimeInput) {
-        validateShiftDuration(this, endTimeInput);
+    const formId = startTimeInput.id.replace('start_time', '');
+    const endTimeInput = document.getElementById('end_time' + formId);
+    
+    if (endTimeInput) {
+      // Función para calcular automáticamente la hora de fin (+8 horas)
+      function autoCalculateEndTime() {
+        const startTime = startTimeInput.value;
+        
+        if (startTime) {
+          // Crear fecha base para cálculos
+          const startDate = new Date(`2000-01-01 ${startTime}`);
+          
+          // Agregar 8 horas
+          const endDate = new Date(startDate.getTime() + (8 * 60 * 60 * 1000));
+          
+          // Formatear la hora de fin
+          const hours = endDate.getHours().toString().padStart(2, '0');
+          const minutes = endDate.getMinutes().toString().padStart(2, '0');
+          const endTimeFormatted = `${hours}:${minutes}`;
+          
+          // Establecer la hora de fin calculada
+          endTimeInput.value = endTimeFormatted;
+          
+          // Limpiar cualquier mensaje de validación
+          endTimeInput.setCustomValidity('');
+        }
       }
-    });
-  });
 
-  document.querySelectorAll('input[name="end_time"]').forEach(function(endTimeInput) {
-    endTimeInput.addEventListener('change', function() {
-      const formId = this.id.replace('end_time', '');
-      const startTimeInput = document.getElementById('start_time' + formId);
-      
-      if (startTimeInput) {
-        validateShiftDuration(startTimeInput, this);
+      // Función para validar que el turno tenga mínimo 8 horas
+      function validateMinimumHours() {
+        const startTime = startTimeInput.value;
+        const endTime = endTimeInput.value;
+        
+        if (startTime && endTime) {
+          // Crear objetos Date para calcular la diferencia
+          const startDate = new Date(`2000-01-01 ${startTime}`);
+          const endDate = new Date(`2000-01-01 ${endTime}`);
+          
+          // Si la hora de fin es menor, asumimos que es al día siguiente
+          if (endDate <= startDate) {
+            endDate.setDate(endDate.getDate() + 1);
+          }
+          
+          // Calcular diferencia en horas
+          const diffInMs = endDate - startDate;
+          const diffInHours = diffInMs / (1000 * 60 * 60);
+          
+          if (diffInHours < 8) {
+            endTimeInput.setCustomValidity('El turno debe tener una duración mínima de 8 horas');
+            return false;
+          } else {
+            endTimeInput.setCustomValidity('');
+            return true;
+          }
+        }
+        return false;
       }
-    });
+      
+      // Auto-calcular cuando cambie la hora de inicio
+      startTimeInput.addEventListener('change', function() {
+        autoCalculateEndTime();
+        validateMinimumHours();
+      });
+      
+      // Validar cuando cambie la hora de fin manualmente
+      endTimeInput.addEventListener('change', validateMinimumHours);
+    }
   });
 
   // Establecer fecha mínima como hoy

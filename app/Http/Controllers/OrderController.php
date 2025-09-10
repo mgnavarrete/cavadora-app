@@ -201,5 +201,100 @@ class OrderController extends Controller
         ));
     }
 
-    public function update(Request $request, $id) {}
+    /**
+     * Actualizar información de una orden específica.
+     */
+    public function update(Request $request, $id)
+    {
+        $userId = 9; // Usuario actual
+
+        // Verificar que la orden pertenezca al usuario actual
+        $order = Order::whereHas('users', function ($q) use ($userId) {
+            $q->where('users.id', $userId);
+        })->findOrFail($id);
+
+        // Validar los datos del formulario
+        $request->validate([
+            'client_name' => 'required|string|max:100',
+            'cliente_rut' => 'nullable|string|max:12',
+            'client_phone' => 'nullable|string|max:15',
+            'client_address' => 'nullable|string|max:255',
+            'work_info' => 'required|string|max:500',
+            'estado' => 'required|in:in_progress,done,canceled',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'hour_cost' => 'nullable|string',
+            'extra_cost' => 'nullable|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Actualizar la orden
+            $order->update([
+                'client_name' => $request->client_name,
+                'cliente_rut' => $request->cliente_rut,
+                'client_phone' => $request->client_phone,
+                'client_address' => $request->client_address,
+                'work_info' => $request->work_info,
+                'estado' => $request->estado,
+                'start_date' => $request->start_date,
+                'end_date' => $request->end_date,
+            ]);
+
+            // Actualizar costos en el pago asociado si existen
+            if ($request->hour_cost || $request->extra_cost) {
+                $payment = $order->payments()->first();
+                if ($payment) {
+                    $payment->update([
+                        'hour_cost' => $request->hour_cost ? $this->parseCurrency($request->hour_cost) : $payment->hour_cost,
+                        'extra_cost' => $request->extra_cost ? $this->parseCurrency($request->extra_cost) : $payment->extra_cost,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return redirect()->route('orders.show', $order->id_order)->with('success', 'Información del cliente actualizada exitosamente');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->withInput()->withErrors(['error' => 'Error al actualizar la información: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Eliminar completamente una orden y todos sus datos relacionados.
+     */
+    public function completeDelete($id)
+    {
+        $userId = 9; // Usuario actual
+
+        // Verificar que la orden pertenezca al usuario actual
+        $order = Order::whereHas('users', function ($q) use ($userId) {
+            $q->where('users.id', $userId);
+        })->findOrFail($id);
+
+        try {
+            DB::beginTransaction();
+
+            // 1. Eliminar todos los turnos/sesiones de trabajo
+            $order->shifts()->delete();
+
+            // 2. Eliminar todos los pagos
+            $order->payments()->delete();
+
+            // 3. Eliminar relaciones usuario-orden (tabla pivot)
+            $order->users()->detach();
+
+            // 4. Finalmente eliminar la orden
+            $order->delete();
+
+            DB::commit();
+
+            return redirect()->route('orders.index')->with('success', 'Cliente y toda su información eliminados exitosamente');
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->withErrors(['error' => 'Error al eliminar la información: ' . $e->getMessage()]);
+        }
+    }
 }

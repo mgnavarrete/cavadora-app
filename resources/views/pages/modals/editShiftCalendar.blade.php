@@ -66,6 +66,29 @@
                         </div>
                     </div>
 
+                    <!-- Horarios del Turno -->
+                    <div class="row">
+                        <!-- Hora de Inicio -->
+                        <div class="col-md-6 mb-3">
+                            <label for="modal-start-time" class="form-label fw-semibold">
+                                <i class="ri-time-line me-1"></i>Hora de Inicio
+                            </label>
+                            <input type="time" class="form-control" id="modal-start-time" name="start_time" required>
+                        </div>
+
+                        <!-- Hora de Fin -->
+                        <div class="col-md-6 mb-3">
+                            <label for="modal-end-time" class="form-label fw-semibold">
+                                <i class="ri-time-line me-1"></i>Hora de Fin
+                            </label>
+                            <input type="time" class="form-control" id="modal-end-time" name="end_time" required>
+                            <div class="form-text text-muted">
+                                <i class="ri-information-line me-1"></i>
+                                Mínimo 8 horas de duración por turno
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Descripción -->
                     <div class="row mb-3">
                         <div class="col-12">
@@ -130,6 +153,10 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('modal-status').value = shiftData.status || 'pending';
         document.getElementById('modal-responsible').value = shiftData.responsible || '';
         document.getElementById('modal-description').value = shiftData.description || '';
+        
+        // Rellenar campos de tiempo si están disponibles
+        if (shiftData.startTime) document.getElementById('modal-start-time').value = shiftData.startTime;
+        if (shiftData.endTime) document.getElementById('modal-end-time').value = shiftData.endTime;
         
         // Configurar formulario
         const form = document.getElementById('editShiftCalendarForm');
@@ -228,6 +255,75 @@ document.addEventListener('DOMContentLoaded', function() {
             window.open('/orders/' + currentOrderId, '_blank');
         }
     });
+
+    // Auto-calcular hora de fin y validar mínimo 8 horas
+    const modalStartTimeInput = document.getElementById('modal-start-time');
+    const modalEndTimeInput = document.getElementById('modal-end-time');
+    
+    if (modalStartTimeInput && modalEndTimeInput) {
+        // Función para calcular automáticamente la hora de fin (+8 horas)
+        function autoCalculateModalEndTime() {
+            const startTime = modalStartTimeInput.value;
+            
+            if (startTime) {
+                // Crear fecha base para cálculos
+                const startDate = new Date(`2000-01-01 ${startTime}`);
+                
+                // Agregar 8 horas
+                const endDate = new Date(startDate.getTime() + (8 * 60 * 60 * 1000));
+                
+                // Formatear la hora de fin
+                const hours = endDate.getHours().toString().padStart(2, '0');
+                const minutes = endDate.getMinutes().toString().padStart(2, '0');
+                const endTimeFormatted = `${hours}:${minutes}`;
+                
+                // Establecer la hora de fin calculada
+                modalEndTimeInput.value = endTimeFormatted;
+                
+                // Limpiar cualquier mensaje de validación
+                modalEndTimeInput.setCustomValidity('');
+            }
+        }
+
+        // Función para validar que el turno tenga mínimo 8 horas
+        function validateModalMinimumHours() {
+            const startTime = modalStartTimeInput.value;
+            const endTime = modalEndTimeInput.value;
+            
+            if (startTime && endTime) {
+                // Crear objetos Date para calcular la diferencia
+                const startDate = new Date(`2000-01-01 ${startTime}`);
+                const endDate = new Date(`2000-01-01 ${endTime}`);
+                
+                // Si la hora de fin es menor, asumimos que es al día siguiente
+                if (endDate <= startDate) {
+                    endDate.setDate(endDate.getDate() + 1);
+                }
+                
+                // Calcular diferencia en horas
+                const diffInMs = endDate - startDate;
+                const diffInHours = diffInMs / (1000 * 60 * 60);
+                
+                if (diffInHours < 8) {
+                    modalEndTimeInput.setCustomValidity('El turno debe tener una duración mínima de 8 horas');
+                    return false;
+                } else {
+                    modalEndTimeInput.setCustomValidity('');
+                    return true;
+                }
+            }
+            return false;
+        }
+        
+        // Auto-calcular cuando cambie la hora de inicio
+        modalStartTimeInput.addEventListener('change', function() {
+            autoCalculateModalEndTime();
+            validateModalMinimumHours();
+        });
+        
+        // Validar cuando cambie la hora de fin manualmente
+        modalEndTimeInput.addEventListener('change', validateModalMinimumHours);
+    }
 });
 </script>
 

@@ -37,7 +37,6 @@
                         <div class="col-md-6 mb-3">
                             <label for="status" class="form-label text-default">Estado <span class="text-danger">*</span></label>
                             <select class="form-select" id="status" name="status" required>
-                                <option value="">Seleccionar estado</option>
                                 <option value="pending" selected>Pendiente</option>
                                 <option value="completed">Completado</option>
                                 <option value="canceled">Cancelado</option>
@@ -122,12 +121,37 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Validar que la hora de fin sea posterior a la de inicio y tenga mínimo 8 horas
+    // Auto-calcular hora de fin y validar mínimo 8 horas
     const startTimeInput = document.getElementById('start_time');
     const endTimeInput = document.getElementById('end_time');
     
     if (startTimeInput && endTimeInput) {
-        function validateTimes() {
+        // Función para calcular automáticamente la hora de fin (+8 horas)
+        function autoCalculateEndTime() {
+            const startTime = startTimeInput.value;
+            
+            if (startTime) {
+                // Crear fecha base para cálculos
+                const startDate = new Date(`2000-01-01 ${startTime}`);
+                
+                // Agregar 8 horas
+                const endDate = new Date(startDate.getTime() + (8 * 60 * 60 * 1000));
+                
+                // Formatear la hora de fin
+                const hours = endDate.getHours().toString().padStart(2, '0');
+                const minutes = endDate.getMinutes().toString().padStart(2, '0');
+                const endTimeFormatted = `${hours}:${minutes}`;
+                
+                // Establecer la hora de fin calculada
+                endTimeInput.value = endTimeFormatted;
+                
+                // Limpiar cualquier mensaje de validación
+                endTimeInput.setCustomValidity('');
+            }
+        }
+
+        // Función para validar que el turno tenga mínimo 8 horas
+        function validateMinimumHours() {
             const startTime = startTimeInput.value;
             const endTime = endTimeInput.value;
             
@@ -147,14 +171,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (diffInHours < 8) {
                     endTimeInput.setCustomValidity('El turno debe tener una duración mínima de 8 horas');
+                    return false;
                 } else {
                     endTimeInput.setCustomValidity('');
+                    return true;
                 }
             }
+            return false;
         }
         
-        startTimeInput.addEventListener('change', validateTimes);
-        endTimeInput.addEventListener('change', validateTimes);
+        // Auto-calcular cuando cambie la hora de inicio
+        startTimeInput.addEventListener('change', function() {
+            autoCalculateEndTime();
+            validateMinimumHours();
+        });
+        
+        // Validar cuando cambie la hora de fin manualmente
+        endTimeInput.addEventListener('change', validateMinimumHours);
     }
 
     // Manejar envío del formulario

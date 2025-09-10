@@ -404,6 +404,7 @@
 @include('pages.modals.editShiftShow')
 @include('pages.modals.editPaymentShow')
 @include('pages.modals.createShift')
+@include('pages.modals.editOrder')
 
 @endsection
 

@@ -41,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/payments', [PaymentController::class, 'index'])->name('payments.index');
     Route::get('/payments/{id}', [PaymentController::class, 'show'])->name('payments.show');
     Route::get('/payments/{id}/pdf', [PaymentController::class, 'generatePDF'])->name('payments.pdf');
+    Route::get('/payments/{id}/print', [PaymentController::class, 'showPrintView'])->name('payments.print');
     Route::put('/payments/{payment}/status', [PaymentController::class, 'updateStatus'])->name('payments.updateStatus');
     Route::put('/payments/{payment}/update', [PaymentController::class, 'updatePaymentAndOrder'])->name('payments.updatePaymentAndOrder');
 
@@ -49,6 +50,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders/create', [OrderController::class, 'create'])->name('orders.create');
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::put('/orders/{id}', [OrderController::class, 'update'])->name('orders.update');
+    Route::delete('/orders/{id}/complete-delete', [OrderController::class, 'completeDelete'])->name('orders.completeDelete');
 
     # SHIFTS
     Route::post('/shifts', [ShiftController::class, 'store'])->name('shifts.store');

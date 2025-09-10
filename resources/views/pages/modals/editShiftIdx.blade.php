@@ -117,6 +117,31 @@
             </div>
           </div>
 
+          <!-- Horarios del Turno -->
+          <div class="row">
+            <!-- Hora de Inicio -->
+            <div class="col-md-6 mb-3">
+              <label for="start_time{{ $shift->id_shift }}" class="form-label fw-semibold">
+                <i class="ri-time-line me-1"></i>Hora de Inicio
+              </label>
+              <input type="time" class="form-control" id="start_time{{ $shift->id_shift }}" name="start_time" 
+                     value="{{ $shift->start_time ? \Illuminate\Support\Str::of((string)$shift->start_time)->limit(5,'') : '' }}" required>
+            </div>
+
+            <!-- Hora de Fin -->
+            <div class="col-md-6 mb-3">
+              <label for="end_time{{ $shift->id_shift }}" class="form-label fw-semibold">
+                <i class="ri-time-line me-1"></i>Hora de Fin
+              </label>
+              <input type="time" class="form-control" id="end_time{{ $shift->id_shift }}" name="end_time" 
+                     value="{{ $shift->end_time ? \Illuminate\Support\Str::of((string)$shift->end_time)->limit(5,'') : '' }}" required>
+              <div class="form-text text-muted">
+                <i class="ri-information-line me-1"></i>
+                Mínimo 8 horas de duración por turno
+              </div>
+            </div>
+          </div>
+
           <!-- Descripción -->
           <div class="row mb-3">
             <div class="col-12">
@@ -178,6 +203,77 @@ document.addEventListener('DOMContentLoaded', function() {
       // Enviar formulario
       this.submit();
     });
+  });
+
+  // Auto-calcular hora de fin y validar mínimo 8 horas para cada modal
+  document.querySelectorAll('input[name="start_time"]').forEach(function(startTimeInput) {
+    const shiftId = startTimeInput.id.replace('start_time', '');
+    const endTimeInput = document.getElementById('end_time' + shiftId);
+    
+    if (endTimeInput) {
+      // Función para calcular automáticamente la hora de fin (+8 horas)
+      function autoCalculateEndTime() {
+        const startTime = startTimeInput.value;
+        
+        if (startTime) {
+          // Crear fecha base para cálculos
+          const startDate = new Date(`2000-01-01 ${startTime}`);
+          
+          // Agregar 8 horas
+          const endDate = new Date(startDate.getTime() + (8 * 60 * 60 * 1000));
+          
+          // Formatear la hora de fin
+          const hours = endDate.getHours().toString().padStart(2, '0');
+          const minutes = endDate.getMinutes().toString().padStart(2, '0');
+          const endTimeFormatted = `${hours}:${minutes}`;
+          
+          // Establecer la hora de fin calculada
+          endTimeInput.value = endTimeFormatted;
+          
+          // Limpiar cualquier mensaje de validación
+          endTimeInput.setCustomValidity('');
+        }
+      }
+
+      // Función para validar que el turno tenga mínimo 8 horas
+      function validateMinimumHours() {
+        const startTime = startTimeInput.value;
+        const endTime = endTimeInput.value;
+        
+        if (startTime && endTime) {
+          // Crear objetos Date para calcular la diferencia
+          const startDate = new Date(`2000-01-01 ${startTime}`);
+          const endDate = new Date(`2000-01-01 ${endTime}`);
+          
+          // Si la hora de fin es menor, asumimos que es al día siguiente
+          if (endDate <= startDate) {
+            endDate.setDate(endDate.getDate() + 1);
+          }
+          
+          // Calcular diferencia en horas
+          const diffInMs = endDate - startDate;
+          const diffInHours = diffInMs / (1000 * 60 * 60);
+          
+          if (diffInHours < 8) {
+            endTimeInput.setCustomValidity('El turno debe tener una duración mínima de 8 horas');
+            return false;
+          } else {
+            endTimeInput.setCustomValidity('');
+            return true;
+          }
+        }
+        return false;
+      }
+      
+      // Auto-calcular cuando cambie la hora de inicio
+      startTimeInput.addEventListener('change', function() {
+        autoCalculateEndTime();
+        validateMinimumHours();
+      });
+      
+      // Validar cuando cambie la hora de fin manualmente
+      endTimeInput.addEventListener('change', validateMinimumHours);
+    }
   });
 });
 </script>

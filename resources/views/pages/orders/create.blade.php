@@ -142,10 +142,14 @@
                             <!-- Costo por Hora -->
                             <div class="col-md-6 mb-3">
                                 <label for="hour_cost" class="form-label text-default">Costo por Hora de Trabajo</label>
-                                <input type="text" class="form-control form-control-lg bg-outline-primary" id="hour_cost" name="hour_cost" placeholder="Costo por hora" oninput="formatCurrency(this)" required value="{{ old('hour_cost') }}">
+                                <input type="text" class="form-control form-control-lg bg-outline-primary" id="hour_cost" name="hour_cost" placeholder="Costo por hora" oninput="formatCurrency(this)" required value="{{ old('hour_cost', '18750') }}">
                                 <div class="form-text text-muted">
                                     <i class="ri-information-line me-1"></i>
                                     Este valor se multiplicará por las horas trabajadas en cada turno
+                                </div>
+                                <div class="form-text text-info">
+                                    <i class="ri-calculator-line me-1"></i>
+                                    <strong>Referencia:</strong> $18.750 corresponde a $150.000 dividido por 8 horas de trabajo
                                 </div>
                             </div>
 
@@ -169,7 +173,7 @@
                             <div class="col-xl-12">
                                 <div class="alert alert-info">
                                     <i class="ri-information-line me-2"></i>
-                                    <strong>Nueva lógica de facturación:</strong>
+                                    <strong>Lógica de facturación:</strong>
                                     <ul class="mb-0 mt-2">
                                         <li>El costo total se calculará multiplicando el <strong>costo por hora</strong> × <strong>total de horas trabajadas</strong> (de los turnos)</li>
                                         <li>Se sumarán los <strong>costos extras</strong> al total calculado</li>
