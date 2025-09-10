@@ -96,6 +96,7 @@
                         <div class="col-xl-12 mb-3">
                             <label for="estado" class="form-label text-default">Estado</label>
                             <select class="form-select form-select-lg bg-outline-primary" id="estado" name="estado" required>
+                                <option value="confirmed" {{ old('estado') == 'confirmed' ? 'selected' : '' }}>Confirmado</option>
                                 <option value="in_progress" {{ old('estado') == 'in_progress' ? 'selected' : '' }}>En Progreso</option>
                                 <option value="done" {{ old('estado') == 'done' ? 'selected' : '' }}>Completado</option>
                                 <option value="canceled" {{ old('estado') == 'canceled' ? 'selected' : '' }}>Cancelado</option>

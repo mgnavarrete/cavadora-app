@@ -14,7 +14,8 @@
 <!-- Page Header -->
 <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
     <h1 class="page-title fw-semibold fs-18 mb-0">¡Hola 👋, @auth{{Auth::user()->name}}@endauth!</h1>
-    <div class="ms-md-1 ms-0">
+    <div class="ms-md-1 ms-0 d-flex align-items-center">
+      
         <nav>
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a href="javascript:void(0);">Páginas</a></li>
@@ -171,6 +172,15 @@
                 <div class="card custom-card flex-fill timeline-container">
                     <div class="card-header d-flex justify-content-between">
                         <p class="card-title fw-semibold fs-18 mb-0">Próximos Turnos</p>
+                        <div class="dropdown ms-2">
+                            <button class="btn btn-light btn-wave waves-effect waves-light px-2 w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ri-add-line align-middle me-1 ms-1 fw-semibold d-inline-block fs-18"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="{{ route('orders.create') }}">Nuevo Trabajo</a></li>
+                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createShiftModal">Nuevo Turno</a></li>
+                            </ul>
+                        </div>
                     </div>
                     <div class="card-body p-0" style="height: 600px; overflow-y: auto;">
                         @php
@@ -283,7 +293,7 @@
             <div class="col-md-5">
                 <div class="card custom-card flex-fill" >
                     <div class="card-header d-flex justify-content-between">
-                        <p class="card-title fw-semibold fs-18 mb-0">Pagos del Mes + Pendientes</p>
+                        <p class="card-title fw-semibold fs-18 mb-0">Pagos del Mes</p>
                     </div>
                     <div class="card-body" style="height: 600px; overflow-y: auto;">
                         <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
@@ -369,6 +379,7 @@
 
 @include('pages.modals.editShiftIdx')
 @include('pages.modals.editPaymentIdx')
+@include('pages.modals.createShiftModal')
 
 {{-- Mostrar mensaje de éxito --}}
 {{-- @if(session('success'))

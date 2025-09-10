@@ -120,6 +120,15 @@ class IndexController extends Controller
                 return $payment->total_amount;
             });
 
+        // Obtener todas las órdenes del usuario con sus fechas
+        $orders = Order::with('users')
+            ->whereHas('users', function ($q) use ($userId) {
+                $q->where('users.id', $userId);
+            })
+            ->whereNotNull('start_date')
+            ->get();
+
+
         // Ya calculado: total pagado en el mes actual ($totalGanadoMesActual)
 
         // Pasar a la vista (ajusta tu blade para estos nombres)
@@ -133,7 +142,8 @@ class IndexController extends Controller
             'proximosTurnos',
             'sesionesPendientes',
             'turnosCompletadosMesActual',
-            'totalEmitidoMesActual'
+            'totalEmitidoMesActual',
+            'orders'
         ));
     }
 

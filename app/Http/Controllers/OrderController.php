@@ -39,10 +39,11 @@ class OrderController extends Controller
         // Ordenar órdenes: primero por estado (in_progress, done, canceled) y luego por más recientes
         $orders = $query->orderByRaw("
             CASE estado 
-                WHEN 'in_progress' THEN 1 
-                WHEN 'done' THEN 2 
-                WHEN 'canceled' THEN 3 
-                ELSE 4 
+                WHEN 'confirmed' THEN 1
+                WHEN 'in_progress' THEN 2 
+                WHEN 'done' THEN 3 
+                WHEN 'canceled' THEN 4 
+                ELSE 5 
             END
         ")
             ->orderBy('created_at', 'desc') // Más recientes primero dentro de cada estado
@@ -74,7 +75,7 @@ class OrderController extends Controller
             'client_address' => 'required|string|max:500',
             'client_info' => 'nullable|string',
             'work_info' => 'required|string',
-            'estado' => 'required|in:in_progress,done,canceled',
+            'estado' => 'required|in:in_progress,done,canceled,confirmed',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'hour_cost' => 'required|string',
@@ -105,7 +106,7 @@ class OrderController extends Controller
                 'hour_cost' => $this->parseCurrency($request->hour_cost),
                 'extra_cost' => $this->parseCurrency($request->extra_cost ?? '0'),
                 'info_extra_cost' => $request->info_extra_cost,
-                'status' => 'pending', // Siempre pendiente al crear
+                'status' => 'confirmed', // Siempre pendiente al crear
                 'emission_date' => $request->start_date, // Fecha de emisión = fecha fin del trabajo
                 'payment_date' => null, // Se llena cuando se pague
                 'description' => '', // Descripción vacía por defecto
@@ -220,7 +221,7 @@ class OrderController extends Controller
             'client_phone' => 'nullable|string|max:15',
             'client_address' => 'nullable|string|max:255',
             'work_info' => 'required|string|max:500',
-            'estado' => 'required|in:in_progress,done,canceled',
+            'estado' => 'required|in:in_progress,done,canceled,confirmed',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'hour_cost' => 'nullable|string',
@@ -295,6 +296,78 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             return redirect()->back()->withErrors(['error' => 'Error al eliminar la información: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Mostrar formulario para que clientes envíen solicitudes de trabajo.
+     */
+    public function createFromClient()
+    {
+        return view('pages.orders.from-cliente');
+    }
+
+    /**
+     * Guardar solicitud de trabajo enviada por cliente.
+     */
+    public function storeFromClient(Request $request)
+    {
+        // Validar los datos del formulario
+        $request->validate([
+            'client_name' => 'required|string|max:255',
+            'cliente_rut' => 'nullable|string|max:20',
+            'client_phone' => 'nullable|string|max:20',
+            'cliente_email' => 'nullable|email|max:255',
+            'client_address' => 'required|string|max:500',
+            'work_info' => 'required|string',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Calcular fechas automáticamente
+            $fechaInicio = Carbon::now('America/Santiago')->toDateString();
+            $fechaFin = Carbon::now('America/Santiago')->addWeekdays(5)->toDateString(); // 5 días hábiles
+
+            // Crear la orden con valores por defecto
+            $order = Order::create([
+                'client_name' => $request->client_name,
+                'cliente_rut' => $request->cliente_rut,
+                'client_phone' => $request->client_phone,
+                'cliente_email' => $request->cliente_email,
+                'client_address' => $request->client_address,
+                'client_info' => null, // No se incluye información adicional
+                'work_info' => $request->work_info,
+                'estado' => 'confirmed', // Estado por defecto
+                'start_date' => $fechaInicio,
+                'end_date' => $fechaFin,
+            ]);
+
+            // Crear el pago asociado con valores automáticos
+            $payment = Payment::create([
+                'id_order' => $order->id_order,
+                'emission_date' => $fechaFin, // Fecha de emisión = fecha de fin
+                'payment_date' => null, // Se llenará cuando se pague
+                'status' => 'pending', // Estado por defecto
+                'description' => 'Pago por servicios de excavación - ' . $order->client_name,
+                'hour_cost' => 18750, // Valor por defecto
+                'extra_cost' => 0, // Sin costos extra por defecto
+                'info_extra_cost' => null,
+                'total_amount' => 0, // Se calculará cuando se agreguen turnos
+            ]);
+
+            // Asociar la orden con el usuario principal (ID 9)
+            $order->users()->attach(9);
+
+            DB::commit();
+
+            return redirect()->route('orders.createFromClient')
+                ->with('success', '¡Solicitud enviada exitosamente! Nos pondremos en contacto contigo pronto.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['error' => 'Error al enviar la solicitud: ' . $e->getMessage()]);
         }
     }
 }

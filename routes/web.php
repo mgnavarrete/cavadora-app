@@ -61,3 +61,7 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/shifts/{shift}/status', [ShiftController::class, 'updateStatus'])->name('shifts.updateStatus');
     Route::delete('/shifts/{shift}', [ShiftController::class, 'destroy'])->name('shifts.destroy');
 });
+
+// RUTA PÚBLICA PARA CLIENTES
+Route::get('/form-cliente', [OrderController::class, 'createFromClient'])->name('orders.createFromClient');
+Route::post('/form-cliente', [OrderController::class, 'storeFromClient'])->name('orders.storeFromClient');
