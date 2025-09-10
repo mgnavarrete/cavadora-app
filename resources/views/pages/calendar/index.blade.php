@@ -62,7 +62,7 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ route('orders.create') }}">Nueva Orden</a></li>
-                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createShift">Nuevo Turno</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createShiftModal">Nuevo Turno</a></li>
                         </ul>
                     </div>
                 </div>
@@ -76,6 +76,9 @@
   </div>
   {{-- Modal para editar turnos desde calendario --}}
   @include('pages.modals.editShiftCalendar')
+  
+  {{-- Modal para crear nuevo turno --}}
+  @include('pages.modals.createShiftModal')
 @endsection
 
 @section('scripts')

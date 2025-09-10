@@ -16,6 +16,16 @@
         <form action="{{ route('payments.updateStatus', $payment->id_payment) }}" method="POST" class="form-edit-payment" data-form-id="{{ $payment->id_payment }}">
           @csrf
           @method('PUT')
+          
+          <!-- Campos ocultos requeridos -->
+          <input type="hidden" name="emission_date" value="{{ $payment->emission_date ? \Carbon\Carbon::parse($payment->emission_date)->format('Y-m-d') : \Carbon\Carbon::now()->format('Y-m-d') }}">
+          <input type="hidden" name="hour_cost" value="{{ $payment->hour_cost ?? 0 }}">
+          <input type="hidden" name="extra_cost" value="{{ $payment->extra_cost ?? 0 }}">
+          <input type="hidden" name="info_extra_cost" value="{{ $payment->info_extra_cost ?? '' }}">
+          <input type="hidden" name="start_date" value="{{ $payment->order->start_date ?? '' }}">
+          <input type="hidden" name="end_date" value="{{ $payment->order->end_date ?? '' }}">
+          <input type="hidden" name="work_info" value="{{ $payment->order->work_info ?? '' }}">
+          <input type="hidden" name="description" value="{{ $payment->description ?? '' }}">
 
           @php
             $totalPago = $payment->total_amount;
@@ -173,7 +183,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function togglePaymentDate() {
       if (select.value === 'paid') {
         paymentDateContainer.style.display = 'block';
-        document.getElementById('payment_date' + paymentId).required = true;
+        const paymentDateInput = document.getElementById('payment_date' + paymentId);
+        paymentDateInput.required = true;
+        // Establecer fecha de hoy automáticamente
+        const today = new Date().toISOString().split('T')[0];
+        paymentDateInput.value = today;
       } else {
         paymentDateContainer.style.display = 'none';
         document.getElementById('payment_date' + paymentId).required = false;

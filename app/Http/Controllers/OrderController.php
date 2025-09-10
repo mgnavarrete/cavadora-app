@@ -106,7 +106,7 @@ class OrderController extends Controller
                 'extra_cost' => $this->parseCurrency($request->extra_cost ?? '0'),
                 'info_extra_cost' => $request->info_extra_cost,
                 'status' => 'pending', // Siempre pendiente al crear
-                'emission_date' => $request->end_date, // Fecha de emisión = fecha fin del trabajo
+                'emission_date' => $request->start_date, // Fecha de emisión = fecha fin del trabajo
                 'payment_date' => null, // Se llena cuando se pague
                 'description' => '', // Descripción vacía por defecto
             ]);

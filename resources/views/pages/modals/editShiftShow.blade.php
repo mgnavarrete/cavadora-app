@@ -147,6 +147,11 @@
                 <i class="ri-information-line me-1"></i>
                 Mínimo 8 horas de duración
               </div>
+              <!-- Alerta de validación -->
+              <div class="alert alert-danger mt-2 d-none" id="hoursAlert{{ $shift->id_shift }}">
+                <i class="ri-error-warning-line me-2"></i>
+                <strong>Error:</strong> El turno debe tener una duración mínima de 8 horas.
+              </div>
             </div>
           </div>
 
@@ -192,7 +197,7 @@
             <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">
               <i class="ri-close-line me-1"></i>Cancelar
             </button>
-            <button type="submit" class="btn btn-success" id="guardarBtnEditShift{{ $shift->id_shift }}" onclick="document.querySelector('.form-edit-shift[data-form-id=&quot;{{ $shift->id_shift }}&quot;]').submit()">
+            <button type="button" class="btn btn-success" id="guardarBtnEditShift{{ $shift->id_shift }}" onclick="submitShiftForm({{ $shift->id_shift }})">
               <i class="ri-save-line me-1"></i>Guardar Cambios
             </button>
           </div>
@@ -207,22 +212,11 @@
 {{-- Script para todos los formularios del loop --}}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Manejar envío de formularios
+  // Manejar envío de formularios (solo para prevenir envío accidental)
   document.querySelectorAll('.form-edit-shift').forEach(function(form) {
     form.addEventListener('submit', function(e) {
       e.preventDefault();
-      
-      const id = this.getAttribute('data-form-id');
-      const btn = document.getElementById('guardarBtnEditShift' + id);
-      const spin = document.getElementById('spinnerEditShift' + id);
-      
-      if (btn && spin) {
-        btn.classList.add('d-none');
-        spin.classList.remove('d-none');
-      }
-      
-      // Enviar formulario
-      this.submit();
+      // La validación se maneja en submitShiftForm()
     });
   });
 
@@ -256,44 +250,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
 
-      // Función para validar que el turno tenga mínimo 8 horas
-      function validateMinimumHours() {
-        const startTime = startTimeInput.value;
-        const endTime = endTimeInput.value;
-        
-        if (startTime && endTime) {
-          // Crear objetos Date para calcular la diferencia
-          const startDate = new Date(`2000-01-01 ${startTime}`);
-          const endDate = new Date(`2000-01-01 ${endTime}`);
-          
-          // Si la hora de fin es menor, asumimos que es al día siguiente
-          if (endDate <= startDate) {
-            endDate.setDate(endDate.getDate() + 1);
-          }
-          
-          // Calcular diferencia en horas
-          const diffInMs = endDate - startDate;
-          const diffInHours = diffInMs / (1000 * 60 * 60);
-          
-          if (diffInHours < 8) {
-            endTimeInput.setCustomValidity('El turno debe tener una duración mínima de 8 horas');
-            return false;
-          } else {
-            endTimeInput.setCustomValidity('');
-            return true;
-          }
-        }
-        return false;
-      }
       
       // Auto-calcular cuando cambie la hora de inicio
       startTimeInput.addEventListener('change', function() {
         autoCalculateEndTime();
-        validateMinimumHours();
+        validateMinimumHours(formId);
       });
       
       // Validar cuando cambie la hora de fin manualmente
-      endTimeInput.addEventListener('change', validateMinimumHours);
+      endTimeInput.addEventListener('change', function() {
+        validateMinimumHours(formId);
+      });
     }
   });
 
@@ -303,6 +270,90 @@ document.addEventListener('DOMContentLoaded', function() {
     dateInput.setAttribute('min', today);
   });
 });
+
+// Función global para validar horas mínimas
+function validateMinimumHours(shiftId) {
+  const startTimeInput = document.getElementById('start_time' + shiftId);
+  const endTimeInput = document.getElementById('end_time' + shiftId);
+  const alertDiv = document.getElementById('hoursAlert' + shiftId);
+  
+  const startTime = startTimeInput.value;
+  const endTime = endTimeInput.value;
+  
+  if (startTime && endTime) {
+    // Crear objetos Date para calcular la diferencia
+    const startDate = new Date(`2000-01-01 ${startTime}`);
+    const endDate = new Date(`2000-01-01 ${endTime}`);
+    
+    // Si la hora de fin es menor, asumimos que es al día siguiente
+    if (endDate <= startDate) {
+      endDate.setDate(endDate.getDate() + 1);
+    }
+    
+    // Calcular diferencia en horas
+    const diffInMs = endDate - startDate;
+    const diffInHours = diffInMs / (1000 * 60 * 60);
+    
+    if (diffInHours < 8) {
+      // Mostrar alerta visual
+      if (alertDiv) {
+        alertDiv.classList.remove('d-none');
+      }
+      
+      // Resaltar campos con error
+      startTimeInput.classList.add('is-invalid');
+      endTimeInput.classList.add('is-invalid');
+      
+      endTimeInput.setCustomValidity('El turno debe tener una duración mínima de 8 horas');
+      return false;
+    } else {
+      // Ocultar alerta visual
+      if (alertDiv) {
+        alertDiv.classList.add('d-none');
+      }
+      
+      // Quitar resaltado de error
+      startTimeInput.classList.remove('is-invalid');
+      endTimeInput.classList.remove('is-invalid');
+      
+      endTimeInput.setCustomValidity('');
+      return true;
+    }
+  }
+  return false;
+}
+
+// Función para enviar formulario con validación
+function submitShiftForm(shiftId) {
+  const form = document.querySelector('.form-edit-shift[data-form-id="' + shiftId + '"]');
+  const startTimeInput = document.getElementById('start_time' + shiftId);
+  const endTimeInput = document.getElementById('end_time' + shiftId);
+  const alertDiv = document.getElementById('hoursAlert' + shiftId);
+  
+  if (!form || !startTimeInput || !endTimeInput) {
+    console.error('Elementos del formulario no encontrados');
+    return;
+  }
+  
+  // Validar horas antes de enviar
+  if (!validateMinimumHours(shiftId)) {
+    // Mostrar alerta del navegador
+    alert('Error: El turno debe tener una duración mínima de 8 horas.');
+    return false; // No enviar formulario
+  }
+  
+  // Si la validación es correcta, proceder con el envío
+  const btn = document.getElementById('guardarBtnEditShift' + shiftId);
+  const spin = document.getElementById('spinnerEditShift' + shiftId);
+  
+  if (btn && spin) {
+    btn.classList.add('d-none');
+    spin.classList.remove('d-none');
+  }
+  
+  // Enviar formulario
+  form.submit();
+}
 
 // Función para confirmar eliminación de turno
 function confirmDeleteShift(shiftId, shiftDate, clientName) {
