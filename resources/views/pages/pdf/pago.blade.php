@@ -267,40 +267,40 @@
                                             <th class="text-end">Valor</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <i class="ri-user-line me-2 text-primary"></i>
-                                                <strong>Mano de Obra</strong>
-                                            </td>
-                                            <td>Costo de personal y trabajadores</td>
-                                            <td class="text-end">${{ number_format($payment->labor_cost ?? 0, 0, ',', '.') }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <i class="ri-settings-line me-2 text-warning"></i>
-                                                <strong>Maquinaria</strong>
-                                            </td>
-                                            <td>Costo de equipos y maquinaria utilizada</td>
-                                            <td class="text-end">${{ number_format($payment->machine_cost ?? 0, 0, ',', '.') }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <i class="ri-gas-station-line me-2 text-info"></i>
-                                                <strong>Combustible</strong>
-                                            </td>
-                                            <td>Gastos en combustible y lubricantes</td>
-                                            <td class="text-end">${{ number_format($payment->fuel_expenses ?? 0, 0, ',', '.') }}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <i class="ri-add-circle-line me-2 text-secondary"></i>
-                                                <strong>Gastos Extras</strong>
-                                            </td>
-                                            <td>{{ $payment->info_extra_cost ?? 'Gastos adicionales varios' }}</td>
-                                            <td class="text-end">${{ number_format($payment->extra_cost ?? 0, 0, ',', '.') }}</td>
-                                        </tr>
-                                    </tbody>
+                                        <tbody>
+                                            <tr>
+                                                <td>
+                                                    <i class="ri-time-line me-2 text-primary"></i>
+                                                    <strong>Costo por Hora</strong>
+                                                </td>
+                                                <td>Valor por hora de trabajo</td>
+                                                <td class="text-end">${{ number_format($payment->hour_cost ?? 0, 0, ',', '.') }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <i class="ri-calendar-line me-2 text-info"></i>
+                                                    <strong>Total Horas Trabajadas</strong>
+                                                </td>
+                                                <td>Suma de todas las horas de los turnos</td>
+                                                <td class="text-end">{{ number_format($payment->total_hours, 1) }} hrs</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <i class="ri-calculator-line me-2 text-success"></i>
+                                                    <strong>Subtotal por Horas</strong>
+                                                </td>
+                                                <td>Costo por hora × Total horas</td>
+                                                <td class="text-end">${{ number_format(($payment->hour_cost ?? 0) * $payment->total_hours, 0, ',', '.') }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <i class="ri-add-circle-line me-2 text-secondary"></i>
+                                                    <strong>Gastos Extras</strong>
+                                                </td>
+                                                <td>{{ $payment->info_extra_cost ?? 'Gastos adicionales varios' }}</td>
+                                                <td class="text-end">${{ number_format($payment->extra_cost ?? 0, 0, ',', '.') }}</td>
+                                            </tr>
+                                        </tbody>
                                     <tfoot class="table-light">
                                         <tr>
                                             <td colspan="2"></td>

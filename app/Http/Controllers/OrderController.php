@@ -18,7 +18,7 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-        $userId = 10; // Usuario actual (ajustar según tu lógica de auth)
+        $userId = 9; // Usuario actual (ajustar según tu lógica de auth)
         $search = $request->get('search');
 
         // Crear query builder para las órdenes
@@ -77,9 +77,7 @@ class OrderController extends Controller
             'estado' => 'required|in:in_progress,done,canceled',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'labor_cost' => 'required|string',
-            'machine_cost' => 'required|string',
-            'fuel_expenses' => 'required|string',
+            'hour_cost' => 'required|string',
             'extra_cost' => 'nullable|string',
             'info_extra_cost' => 'nullable|string',
         ]);
@@ -104,9 +102,7 @@ class OrderController extends Controller
             // Crear el pago asociado con valores automáticos
             Payment::create([
                 'id_order' => $order->id_order,
-                'labor_cost' => $this->parseCurrency($request->labor_cost),
-                'machine_cost' => $this->parseCurrency($request->machine_cost),
-                'fuel_expenses' => $this->parseCurrency($request->fuel_expenses),
+                'hour_cost' => $this->parseCurrency($request->hour_cost),
                 'extra_cost' => $this->parseCurrency($request->extra_cost ?? '0'),
                 'info_extra_cost' => $request->info_extra_cost,
                 'status' => 'pending', // Siempre pendiente al crear
@@ -116,7 +112,7 @@ class OrderController extends Controller
             ]);
 
             // Asociar la orden con el usuario actual (tabla pivot user_orden)
-            $userId = 10; // Usuario actual (ajustar según tu lógica de auth)
+            $userId = 9; // Usuario actual (ajustar según tu lógica de auth)
             $order->users()->attach($userId);
 
             DB::commit();
@@ -142,7 +138,7 @@ class OrderController extends Controller
      */
     public function show($id)
     {
-        $userId = 10; // Usuario actual
+        $userId = 9; // Usuario actual
 
         // Obtener la orden con todas sus relaciones
         $order = Order::with(['shifts', 'payments', 'users'])
@@ -172,12 +168,10 @@ class OrderController extends Controller
             'turnos_pendientes' => $order->shifts->where('status', 'pending')->count(),
             'turnos_cancelados' => $order->shifts->where('status', 'canceled')->count(),
             'total_facturado' => $pagosOrden->sum(function ($payment) {
-                return $payment->labor_cost + $payment->machine_cost +
-                    $payment->fuel_expenses + $payment->extra_cost;
+                return $payment->total_amount;
             }),
             'total_pagado' => $pagosOrden->where('status', 'paid')->sum(function ($payment) {
-                return $payment->labor_cost + $payment->machine_cost +
-                    $payment->fuel_expenses + $payment->extra_cost;
+                return $payment->total_amount;
             }),
             'pagos_pendientes' => $pagosOrden->whereIn('status', ['pending', 'overdue'])->count(),
         ];

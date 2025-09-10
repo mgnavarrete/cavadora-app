@@ -140,37 +140,40 @@
               
               <div class="row mb-3">
                 <div class="col-md-6">
-                  <label for="labor_cost{{ $payment->id_payment }}" class="form-label fw-semibold">
-                    <i class="ri-user-line me-1 text-primary"></i>Costo de Mano de Obra:
+                  <label for="hour_cost{{ $payment->id_payment }}" class="form-label fw-semibold">
+                    <i class="ri-time-line me-1 text-primary"></i>Costo por Hora:
                   </label>
                   <div class="input-group">
                     <span class="input-group-text">$</span>
-                    <input type="number" class="form-control cost-input" id="labor_cost{{ $payment->id_payment }}" name="labor_cost" 
-                           value="{{ $payment->labor_cost ?? 0 }}" min="0" step="1000" data-payment-id="{{ $payment->id_payment }}">
+                    <input type="number" class="form-control cost-input" id="hour_cost{{ $payment->id_payment }}" name="hour_cost" 
+                           value="{{ $payment->hour_cost ?? 0 }}" min="0" step="1000" data-payment-id="{{ $payment->id_payment }}">
                   </div>
                 </div>
                 <div class="col-md-6">
-                  <label for="machine_cost{{ $payment->id_payment }}" class="form-label fw-semibold">
-                    <i class="ri-settings-line me-1 text-warning"></i>Costo de Maquinaria:
+                  <label class="form-label fw-semibold">
+                    <i class="ri-calendar-line me-1 text-info"></i>Total Horas Trabajadas:
                   </label>
                   <div class="input-group">
-                    <span class="input-group-text">$</span>
-                    <input type="number" class="form-control cost-input" id="machine_cost{{ $payment->id_payment }}" name="machine_cost" 
-                           value="{{ $payment->machine_cost ?? 0 }}" min="0" step="1000" data-payment-id="{{ $payment->id_payment }}">
+                    <span class="input-group-text">
+                      <i class="ri-time-line"></i>
+                    </span>
+                    <input type="text" class="form-control" value="{{ number_format($payment->total_hours, 1) }} hrs" readonly>
                   </div>
+                  <small class="text-muted">Calculado automáticamente desde los turnos</small>
                 </div>
               </div>
 
               <div class="row mb-3">
                 <div class="col-md-6">
-                  <label for="fuel_expenses{{ $payment->id_payment }}" class="form-label fw-semibold">
-                    <i class="ri-gas-station-line me-1 text-info"></i>Gastos de Combustible:
+                  <label class="form-label fw-semibold">
+                    <i class="ri-calculator-line me-1 text-success"></i>Subtotal por Horas:
                   </label>
                   <div class="input-group">
                     <span class="input-group-text">$</span>
-                    <input type="number" class="form-control cost-input" id="fuel_expenses{{ $payment->id_payment }}" name="fuel_expenses" 
-                           value="{{ $payment->fuel_expenses ?? 0 }}" min="0" step="1000" data-payment-id="{{ $payment->id_payment }}">
+                    <input type="text" class="form-control" id="labor_subtotal{{ $payment->id_payment }}" 
+                           value="{{ number_format(($payment->hour_cost ?? 0) * $payment->total_hours, 0, ',', '.') }}" readonly>
                   </div>
+                  <small class="text-muted">Costo por hora × Total horas</small>
                 </div>
                 <div class="col-md-6">
                   <label for="extra_cost{{ $payment->id_payment }}" class="form-label fw-semibold">
@@ -374,12 +377,20 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // ===== FUNCIÓN PARA CALCULAR TOTAL =====
     function updateTotal() {
-        const laborCost = parseFloat(document.getElementById('labor_cost' + paymentId).value) || 0;
-        const machineCost = parseFloat(document.getElementById('machine_cost' + paymentId).value) || 0;
-        const fuelExpenses = parseFloat(document.getElementById('fuel_expenses' + paymentId).value) || 0;
+        const hourCost = parseFloat(document.getElementById('hour_cost' + paymentId).value) || 0;
+        const totalHours = {{ $payment->total_hours }};
         const extraCost = parseFloat(document.getElementById('extra_cost' + paymentId).value) || 0;
         
-        const total = laborCost + machineCost + fuelExpenses + extraCost;
+        // Calcular subtotal por horas
+        const laborSubtotal = hourCost * totalHours;
+        
+        // Actualizar subtotal en la interfaz
+        const subtotalElement = document.getElementById('labor_subtotal' + paymentId);
+        if (subtotalElement) {
+            subtotalElement.value = new Intl.NumberFormat('es-CL').format(laborSubtotal);
+        }
+        
+        const total = laborSubtotal + extraCost;
         
         // Formatear el total
         const formattedTotal = new Intl.NumberFormat('es-CL', {

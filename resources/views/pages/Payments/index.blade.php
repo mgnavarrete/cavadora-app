@@ -128,7 +128,7 @@
                         @else
                             @foreach ($pagos as $pago)
                                 @php
-                                    $totalPago = $pago->labor_cost + $pago->machine_cost + $pago->fuel_expenses + $pago->extra_cost;
+                                    $totalPago = $pago->total_amount;
                                 @endphp
                                 <div class="col-md-6 d-flex">
                                     <div class="card custom-card flex-fill
@@ -193,7 +193,7 @@
                         @else
                             @foreach ($pendientes as $pago)
                                 @php
-                                    $totalPago = $pago->labor_cost + $pago->machine_cost + $pago->fuel_expenses + $pago->extra_cost;
+                                    $totalPago = $pago->total_amount;
                                 @endphp
                                 <div class="col-md-6 d-flex">
                                     <div class="card custom-card flex-fill task-pending-card">
@@ -244,7 +244,7 @@
                         @else
                             @foreach ($atrasados as $pago)
                                 @php
-                                    $totalPago = $pago->labor_cost + $pago->machine_cost + $pago->fuel_expenses + $pago->extra_cost;
+                                    $totalPago = $pago->total_amount;
                                 @endphp
                                 <div class="col-md-6 d-flex">
                                     <div class="card custom-card flex-fill task-pending-card">
@@ -295,7 +295,7 @@
                         @else
                             @foreach ($pagados as $pago)
                                 @php
-                                    $totalPago = $pago->labor_cost + $pago->machine_cost + $pago->fuel_expenses + $pago->extra_cost;
+                                    $totalPago = $pago->total_amount;
                                 @endphp
                                 <div class="col-md-6 d-flex">
                                     <div class="card custom-card flex-fill task-completed-card">

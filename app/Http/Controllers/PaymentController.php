@@ -59,8 +59,8 @@ class PaymentController extends Controller
         // Obtener los usuarios asignados a la orden
         $users = $payment->order ? $payment->order->users : collect();
 
-        // Calcular el total del pago
-        $totalPago = $payment->labor_cost + $payment->machine_cost + $payment->fuel_expenses + $payment->extra_cost;
+        // Calcular el total del pago usando el nuevo método
+        $totalPago = $payment->total_amount;
 
         return view('pages.Payments.show', compact('payment', 'shifts', 'users', 'totalPago'));
     }
@@ -76,8 +76,8 @@ class PaymentController extends Controller
         // Obtener los turnos relacionados con la orden del pago
         $shifts = $payment->order ? $payment->order->shifts()->orderBy('shift_date', 'asc')->get() : collect();
 
-        // Calcular el total del pago
-        $totalPago = $payment->labor_cost + $payment->machine_cost + $payment->fuel_expenses + $payment->extra_cost;
+        // Calcular el total del pago usando el nuevo método
+        $totalPago = $payment->total_amount;
 
         return view('pages.pdf.pago', compact('payment', 'shifts', 'totalPago'));
     }
@@ -100,9 +100,7 @@ class PaymentController extends Controller
                 'emission_date' => 'required|date',
                 'payment_date' => 'nullable|date|after_or_equal:emission_date',
                 'description' => 'nullable|string|max:1000',
-                'labor_cost' => 'nullable|numeric|min:0',
-                'machine_cost' => 'nullable|numeric|min:0',
-                'fuel_expenses' => 'nullable|numeric|min:0',
+                'hour_cost' => 'nullable|numeric|min:0',
                 'extra_cost' => 'nullable|numeric|min:0',
                 'info_extra_cost' => 'nullable|string|max:500',
 
@@ -139,9 +137,7 @@ class PaymentController extends Controller
                 'emission_date' => $validatedData['emission_date'],
                 'payment_date' => $validatedData['payment_date'],
                 'description' => $validatedData['description'],
-                'labor_cost' => $validatedData['labor_cost'] ?? 0,
-                'machine_cost' => $validatedData['machine_cost'] ?? 0,
-                'fuel_expenses' => $validatedData['fuel_expenses'] ?? 0,
+                'hour_cost' => $validatedData['hour_cost'] ?? 0,
                 'extra_cost' => $validatedData['extra_cost'] ?? 0,
                 'info_extra_cost' => $validatedData['info_extra_cost'],
             ];
@@ -216,8 +212,8 @@ class PaymentController extends Controller
                 Log::info('Shifts update completed', ['shifts_updated' => $shiftsUpdated]);
             }
 
-            // Calcular nuevo total
-            $newTotal = $payment->labor_cost + $payment->machine_cost + $payment->fuel_expenses + $payment->extra_cost;
+            // Calcular nuevo total usando el método del modelo
+            $newTotal = $payment->fresh()->total_amount;
 
             return response()->json([
                 'success' => true,
@@ -268,9 +264,7 @@ class PaymentController extends Controller
                 'payment_date' => 'nullable|date|after_or_equal:emission_date',
                 'emission_date' => 'required|date',
                 'description' => 'nullable|string|max:1000',
-                'labor_cost' => 'nullable|numeric|min:0',
-                'machine_cost' => 'nullable|numeric|min:0',
-                'fuel_expenses' => 'nullable|numeric|min:0',
+                'hour_cost' => 'nullable|numeric|min:0',
                 'extra_cost' => 'nullable|numeric|min:0',
                 'info_extra_cost' => 'nullable|string|max:500',
 
@@ -299,9 +293,7 @@ class PaymentController extends Controller
                 'payment_date' => $data['payment_date'],
                 'emission_date' => $data['emission_date'],
                 'description' => $data['description'],
-                'labor_cost' => $data['labor_cost'] ?? 0,
-                'machine_cost' => $data['machine_cost'] ?? 0,
-                'fuel_expenses' => $data['fuel_expenses'] ?? 0,
+                'hour_cost' => $data['hour_cost'] ?? 0,
                 'extra_cost' => $data['extra_cost'] ?? 0,
                 'info_extra_cost' => $data['info_extra_cost'],
             ];
@@ -335,7 +327,7 @@ class PaymentController extends Controller
                     'success' => true,
                     'message' => 'Pago y orden actualizados correctamente.',
                     'payment' => $payment->fresh(['order']),
-                    'total' => $payment->labor_cost + $payment->machine_cost + $payment->fuel_expenses + $payment->extra_cost
+                    'total' => $payment->fresh()->total_amount
                 ]);
             }
 

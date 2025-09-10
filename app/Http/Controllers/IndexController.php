@@ -17,7 +17,7 @@ class IndexController extends Controller
     {
         $this->actualizarPagos();
 
-        $userId = 10;
+        $userId = 9;
 
         // Zona horaria CL
         $now = Carbon::now('America/Santiago');
@@ -29,13 +29,16 @@ class IndexController extends Controller
 
         // Helper para sumas de pagos (usa payment_date para "pagado")
         $sumPagosMes = function (int $year, int $month) use ($userId) {
-            return Payment::whereHas('order.users', function ($q) use ($userId) {
+            return Payment::with('order.shifts')->whereHas('order.users', function ($q) use ($userId) {
                 $q->where('users.id', $userId);
             })
                 ->where('status', 'paid')
                 ->whereYear('payment_date', $year)
                 ->whereMonth('payment_date', $month)
-                ->sum(DB::raw('(labor_cost + machine_cost + fuel_expenses + extra_cost)'));
+                ->get()
+                ->sum(function ($payment) {
+                    return $payment->total_amount;
+                });
         };
 
         // Totales pagados
@@ -107,12 +110,15 @@ class IndexController extends Controller
             ->count();
 
         // Facturación "emitida" en el mes actual (por fecha de emisión)
-        $totalEmitidoMesActual = Payment::whereHas('order.users', function ($q) use ($userId) {
+        $totalEmitidoMesActual = Payment::with('order.shifts')->whereHas('order.users', function ($q) use ($userId) {
             $q->where('users.id', $userId);
         })
             ->whereYear('emission_date', $mesActual->year)
             ->whereMonth('emission_date', $mesActual->month)
-            ->sum(DB::raw('(labor_cost + machine_cost + fuel_expenses + extra_cost)'));
+            ->get()
+            ->sum(function ($payment) {
+                return $payment->total_amount;
+            });
 
         // Ya calculado: total pagado en el mes actual ($totalGanadoMesActual)
 
@@ -136,7 +142,7 @@ class IndexController extends Controller
      */
     public function calendar()
     {
-        $userId = 10; // Ajustar según tu lógica de autenticación
+        $userId = 9; // Ajustar según tu lógica de autenticación
 
         // Obtener todas las órdenes del usuario con sus fechas
         $orders = Order::with('users')

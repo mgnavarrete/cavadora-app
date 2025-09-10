@@ -139,28 +139,24 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <!-- Costo de Mano de Obra -->
+                            <!-- Costo por Hora -->
                             <div class="col-md-6 mb-3">
-                                <label for="labor_cost" class="form-label text-default">Costo de Mano de Obra</label>
-                                <input type="text" class="form-control form-control-lg bg-outline-primary" id="labor_cost" name="labor_cost" placeholder="Costo de mano de obra" oninput="formatCurrency(this)" required value="{{ old('labor_cost') }}">
-                            </div>
-
-                            <!-- Costo de Máquina -->
-                            <div class="col-md-6 mb-3">
-                                <label for="machine_cost" class="form-label text-default">Costo de Máquina</label>
-                                <input type="text" class="form-control form-control-lg bg-outline-primary" id="machine_cost" name="machine_cost" placeholder="Costo de máquina" oninput="formatCurrency(this)" required value="{{ old('machine_cost') }}">
-                            </div>
-
-                            <!-- Gastos de Combustible -->
-                            <div class="col-md-6 mb-3">
-                                <label for="fuel_expenses" class="form-label text-default">Gastos de Combustible</label>
-                                <input type="text" class="form-control form-control-lg bg-outline-primary" id="fuel_expenses" name="fuel_expenses" placeholder="Gastos de combustible" oninput="formatCurrency(this)" required value="{{ old('fuel_expenses') }}">
+                                <label for="hour_cost" class="form-label text-default">Costo por Hora de Trabajo</label>
+                                <input type="text" class="form-control form-control-lg bg-outline-primary" id="hour_cost" name="hour_cost" placeholder="Costo por hora" oninput="formatCurrency(this)" required value="{{ old('hour_cost') }}">
+                                <div class="form-text text-muted">
+                                    <i class="ri-information-line me-1"></i>
+                                    Este valor se multiplicará por las horas trabajadas en cada turno
+                                </div>
                             </div>
 
                             <!-- Costo Extra -->
                             <div class="col-md-6 mb-3">
                                 <label for="extra_cost" class="form-label text-default">Costo Extra <span class="text-muted">(Opcional)</span></label>
                                 <input type="text" class="form-control form-control-lg bg-outline-primary" id="extra_cost" name="extra_cost" placeholder="Costo extra" oninput="formatCurrency(this)" value="{{ old('extra_cost', '0') }}">
+                                <div class="form-text text-muted">
+                                    <i class="ri-information-line me-1"></i>
+                                    Gastos adicionales que no dependen de las horas trabajadas
+                                </div>
                             </div>
 
                             <!-- Información del Costo Extra -->
@@ -173,11 +169,13 @@
                             <div class="col-xl-12">
                                 <div class="alert alert-info">
                                     <i class="ri-information-line me-2"></i>
-                                    <strong>Información automática:</strong>
+                                    <strong>Nueva lógica de facturación:</strong>
                                     <ul class="mb-0 mt-2">
+                                        <li>El costo total se calculará multiplicando el <strong>costo por hora</strong> × <strong>total de horas trabajadas</strong> (de los turnos)</li>
+                                        <li>Se sumarán los <strong>costos extras</strong> al total calculado</li>
                                         <li>La fecha de emisión será igual a la fecha de fin del trabajo</li>
                                         <li>El estado del pago será "Pendiente" hasta que se registre el pago</li>
-                                        <li>La fecha de pago se registrará cuando se complete el pago</li>
+                                        <li>Todos los turnos deben tener <strong>mínimo 8 horas</strong> de duración</li>
                                     </ul>
                                 </div>
                             </div>

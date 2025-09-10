@@ -333,9 +333,9 @@
                                                                     <i class="ri-money-dollar-box-fill fs-16 op-5 me-1 text-muted"></i>
                                                                     {{ ucfirst($pago->emission_date ? \Carbon\Carbon::parse($pago->emission_date)->translatedFormat('F Y') : 'Sin fecha') }} - {{ $order->client_name }}
                                                                 </p>
-                                                                @php
-                                                                    $totalPago = $pago->labor_cost + $pago->machine_cost + $pago->fuel_expenses + $pago->extra_cost;
-                                                                @endphp
+                                                @php
+                                                    $totalPago = $pago->total_amount;
+                                                @endphp
                                                                 <p class="mb-2">Valor Total :
                                                                     <span class="fs-12 mb-1 text-muted">${{ number_format($totalPago, 0, ',', '.') }}</span>
                                                                 </p>

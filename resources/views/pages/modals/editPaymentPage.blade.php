@@ -18,7 +18,7 @@
           @method('PUT')
 
           @php
-            $totalPago = ($payment->labor_cost + $payment->machine_cost + $payment->fuel_expenses + $payment->extra_cost);
+            $totalPago = $payment->total_amount;
             $emissionDate = $payment->emission_date;
             if ($emissionDate instanceof \Carbon\Carbon) {
                 $emissionDateFormatted = $emissionDate->translatedFormat('d M Y');
@@ -65,20 +65,20 @@
               </h6>
               <div class="row">
                 <div class="col-md-6 mb-3">
-                  <label class="form-label fw-semibold text-muted">Costo Laboral:</label>
-                  <p class="mb-0 fs-16">${{ number_format($payment->labor_cost, 0, ',', '.') }}</p>
+                  <label class="form-label fw-semibold text-muted">Costo por Hora:</label>
+                  <p class="mb-0 fs-16">${{ number_format($payment->hour_cost ?? 0, 0, ',', '.') }}</p>
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label class="form-label fw-semibold text-muted">Costo Maquinaria:</label>
-                  <p class="mb-0 fs-16">${{ number_format($payment->machine_cost, 0, ',', '.') }}</p>
+                  <label class="form-label fw-semibold text-muted">Total Horas:</label>
+                  <p class="mb-0 fs-16">{{ number_format($payment->total_hours, 1) }} hrs</p>
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label class="form-label fw-semibold text-muted">Combustible:</label>
-                  <p class="mb-0 fs-16">${{ number_format($payment->fuel_expenses, 0, ',', '.') }}</p>
+                  <label class="form-label fw-semibold text-muted">Subtotal Horas:</label>
+                  <p class="mb-0 fs-16">${{ number_format(($payment->hour_cost ?? 0) * $payment->total_hours, 0, ',', '.') }}</p>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label class="form-label fw-semibold text-muted">Costos Extra:</label>
-                  <p class="mb-0 fs-16">${{ number_format($payment->extra_cost, 0, ',', '.') }}</p>
+                  <p class="mb-0 fs-16">${{ number_format($payment->extra_cost ?? 0, 0, ',', '.') }}</p>
                 </div>
               </div>
             </div>

@@ -33,13 +33,13 @@
                     <div class="row">
                         <div class="col-6 pe-0">
                             <p class="mb-2">
-                                <span class="fs-14">Total Órdenes</span>
+                                <span class="fs-14">Total Trabajos</span>
                             </p>
                             <p class="mb-2 fs-12">
                                 <span class="fs-20 fw-semibold lh-1 vertical-bottom mb-0">{{ $totalOrdenes }}</span>
                                 <span class="d-block fs-10 fw-semibold text-muted">Este Mes</span>
                             </p>
-                            <a href="{{ route('orders.index') }}" class="fs-12 mb-0 text-secondary">Ver Órdenes<i class="ti ti-chevron-right ms-1"></i></a>
+                            <a href="{{ route('orders.index') }}" class="fs-12 mb-0 text-secondary">Ver Trabajos<i class="ti ti-chevron-right ms-1"></i></a>
                         </div>
                         <div class="col-6">
                             @php
@@ -112,7 +112,7 @@
                         <div class="col-6">
                             @php
                                 $montoPendiente = $pagosPendientes->sum(function ($pago) {
-                                    return ($pago->labor_cost + $pago->machine_cost + $pago->fuel_expenses + $pago->extra_cost);
+                                    return $pago->total_amount;
                                 });
                                 $iconoPend = $montoPendiente <= 0 ? 'ti-caret-up' : 'ti-caret-down';
                                 $colorPend = $montoPendiente <= 0 ? 'bg-success-transparent' : 'bg-danger-transparent';
@@ -299,7 +299,7 @@
                                 <tbody>
                                     @forelse($pagosPendientes as $pago)
                                     @php
-                                        $totalPago = ($pago->labor_cost + $pago->machine_cost + $pago->fuel_expenses + $pago->extra_cost);
+                                        $totalPago = $pago->total_amount;
                                     @endphp
                                     <tr>
                                         <td>{{ optional($pago->order)->client_name }}</td>
