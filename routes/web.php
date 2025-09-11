@@ -21,7 +21,7 @@ use App\Http\Controllers\DashboardController;
 
 // AUTHENTICATION //
 Route::get('/', function () {
-    return view('landingIndex');
+    return view('pages.landingIndex');
 })->name('inicio');  // Muestra el landing page de La Cavadora
 
 Route::get('/login', function () {

@@ -40,9 +40,9 @@ class LoginController extends Controller
 
         if (Auth::attempt($credenciales)) {
             $request->session()->regenerate();
-            return redirect()->intended(route('index'));
+            return redirect()->route('index');
         } else {
-            return redirect(route('inicio'))->withErrors(['error' => 'Usuario o Contraseña invalido. Por favor intenta de nuevo.']);
+            return redirect()->route('login.page')->withErrors(['error' => 'Usuario o Contraseña invalido. Por favor intenta de nuevo.']);
         }
     }
 

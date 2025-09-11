@@ -42,9 +42,9 @@
                                 </li>
                                 <!-- End::slide -->
                                 <li class="slide">
-                                    <a href="/login" class="side-menu__item" onclick="window.location.href='/login'">
+                                    <a href="{{ route('login.page') }}" class="side-menu__item">
                                         <i class="ti ti-login"></i>
-                                        <span class="side-menu__label"></span>
+                                 
                                     </a>
                                 </li>
                             </ul>

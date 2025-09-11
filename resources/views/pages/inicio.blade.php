@@ -70,7 +70,7 @@
                                     </div>
                                     @if ($errors->any())
                                         <div class="alert alert-danger">
-                                            {{ $errors->first('error') }}
+                                            {{ $errors->first() }}
                                         </div>
                                     @endif
                                 </form>

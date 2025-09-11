@@ -17,7 +17,7 @@ class IndexController extends Controller
     {
         $this->actualizarPagos();
 
-        $userId = 9;
+        $userId = Auth::id();
 
         // Zona horaria CL
         $now = Carbon::now('America/Santiago');
@@ -152,7 +152,7 @@ class IndexController extends Controller
      */
     public function calendar()
     {
-        $userId = 9; // Ajustar según tu lógica de autenticación
+        $userId = Auth::id();
 
         // Obtener todas las órdenes del usuario con sus fechas
         $orders = Order::with('users')
