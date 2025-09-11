@@ -65,7 +65,7 @@
 
                 
                     <!-- FOOTER -->
-                    @include('layouts.components.landing.footer')
+                    {{-- @include('layouts.components.landing.footer') --}}
 
                     <!-- FOOTER -->
 
