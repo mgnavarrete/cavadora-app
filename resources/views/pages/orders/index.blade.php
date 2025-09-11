@@ -83,72 +83,122 @@
                             'in_progress' => 'En Progreso',
                             default => 'Sin Estado'
                         };
+                        $estadoIcon = match($cliente->estado) {
+                            'confirmed' => 'ri-check-line',
+                            'done' => 'ri-check-double-line',
+                            'not_confirmed' => 'ri-time-line',
+                            'canceled' => 'ri-close-line',
+                            'in_progress' => 'ri-loader-4-line',
+                            default => 'ri-question-line'
+                        };
                         @endphp
-                        <div class="col-xxl-4 col-xl-6 col-lg-6 col-md-6 col-sm-12">
+                        <div class="col-xxl-4 col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-4">
                             <a href="{{ route('orders.show', $cliente->id_order) }}" class="text-decoration-none">
-                                <div class="card custom-card team-member-card" style="height: 300px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                                    <div class="teammember-cover-image">
-                                        <img src="{{asset('build/assets/images/profile/machine.jpg')}}" class="object-fit-cover card-img-top" >
-                          
+                                <div class="card custom-card order-card h-100" style="cursor: pointer; transition: all 0.3s ease; border: 1px solid #e9ecef; h" 
+                                     onmouseover="this.style.transform='translateY(-5px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.15)'; this.style.borderColor='#007bff'" 
+                                     onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.08)'; this.style.borderColor='#e9ecef'">
+                                    
+                                    <!-- Header con imagen y estado -->
+                                    <div class="position-relative">
+                                        <div class="teammember-cover-image">
+                                            <img src="{{asset('build/assets/images/profile/machine.jpg')}}" class="object-fit-cover card-img-top" 
+                                                 >
+                                        </div>
+                                        <!-- Badge de estado flotante -->
+                                        <div class="position-absolute top-0 end-0 m-3">
+                                            <span class="badge {{ $estadoColor }} px-3 py-2 rounded-pill d-flex align-items-center gap-1" 
+                                                  style="font-size: 0.75rem; font-weight: 600;">
+                                                <i class="{{ $estadoIcon }}"></i>
+                                                {{ $estadoTexto }}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div class="card-body p-0">
-                                    <div class="d-flex flex-wrap mt-0 justify-content-between border-bottom p-3">
-                                        
-                                        <div style="margin-left: 4.5rem;">
-                                            <p class="mb-1 fw-semibold fs-17 text-dark">
+
+                                    <!-- Contenido principal -->
+                                    <div class="card-body p-4">
+                                        <!-- Información del cliente -->
+                                        <div class="mb-4">
+                                            <h5 class="card-title fw-bold text-dark mb-3 d-flex align-items-center">
+                                                <i class="ri-user-3-line text-primary me-2"></i>
                                                 {{ $cliente->client_name }}
-                                            </p>
-                                            <p class="mb-0 fs-12 text-muted text-break">
-                                                {{ $cliente->cliente_rut ?? 'Sin RUT' }}
-                                            </p>
-                                            <p class="mb-0 fs-12 text-muted text-break">
-                                                {{ $cliente->client_phone ?? 'Sin teléfono' }}
-                                            </p>
-                                            <p class="mb-0 fs-12 text-muted text-break">
-                                                {{ Str::limit($cliente->client_address ?? 'Sin dirección', 30) }}
-                                            </p>    
-                                        </div>
-                                        <div class="dropdown" onclick="event.stopPropagation(); event.preventDefault();">
-                                            {{-- <button class="btn btn-sm btn-icon btn-light btn-wave waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ti ti-dots-vertical"></i>
-                                            </button> --}}
-                                            <ul class="dropdown-menu">
-                                                <li><a class="dropdown-item" href="{{ route('orders.show', $cliente->id_order) }}">Ver Detalles</a></li>
-                                                <li><a class="dropdown-item" href="javascript:void(0);">Nueva Orden</a></li>
-                                                <li><a class="dropdown-item" href="javascript:void(0);">Editar Cliente</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <div class="team-member-stats d-sm-flex justify-content-evenly">
-                                        <div class="text-center p-3 my-auto">
-                                            <p class="fw-semibold mb-0">Fecha Inicio</p>
-                                            <span class="text-muted fs-12">
-                                                @if($cliente->start_date)
-                                                    {{ \Carbon\Carbon::parse($cliente->start_date)->locale('es')->isoFormat('dddd D [de] MMMM YYYY') }}
-                                                @else
-                                                    Sin fecha
-                                                @endif
-                                            </span>
-                                        </div>
-                                        <div class="text-center p-3 my-auto">
-                                            <p class="fw-semibold mb-0">Fecha Fin</p>
-                                            <span class="text-muted fs-12">
-                                                @if($cliente->end_date)
-                                                    {{ \Carbon\Carbon::parse($cliente->end_date)->locale('es')->isoFormat('dddd D [de] MMMM YYYY') }}
-                                                @else
-                                                    Sin fecha
-                                                @endif
-                                            </span>
-                                        </div>
-                                        <div class="text-center p-3 my-auto">
-                                            <p class="fw-semibold mb-0">Estado</p>
-                                            <span class="text-muted fs-12">
-                                                     
-                                    <span class="badge {{ $estadoColor }} m-2">{{ $estadoTexto }}</span>
-                                            </span>
+                                            </h5>
+                                            
+                                            <div class="row g-3">
+                                                <!-- RUT (ancho completo) -->
+                                                <div class="col-12">
+                                                    <div class="d-flex align-items-center text-muted mb-2">
+                                                        <i class="ri-id-card-line me-2 text-secondary"></i>
+                                                        <small class="fw-medium">{{ $cliente->cliente_rut ?? 'Sin RUT' }}</small>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Columna 1: Teléfono y Dirección -->
+                                                <div class="col-6">
+                                                    <div class="d-flex align-items-center text-muted mb-2 mb-3">
+                                                        <i class="ri-phone-line me-2 text-secondary"></i>
+                                                        <small class="fw-medium">{{ $cliente->client_phone ?? 'Sin teléfono' }}</small>
+                                                    </div>
+                                                    <div class="d-flex align-items-center text-muted mb-3">
+                                                        <i class="ri-mail-line me-2  text-secondary"></i>
+                                                        <small class="fw-medium">{{ Str::limit($cliente->cliente_email ?? 'Sin email', 25) }}</small>
+                                                    </div>
+                                                    <div class="d-flex align-items-start text-muted">
+                                                        <i class="ri-map-pin-line me-2 text-secondary"></i>
+                                                        <small class="fw-medium">{{ $cliente->client_address ?? 'Sin dirección' }}</small>
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- Columna 2: Descripción del trabajo -->
+                                                <div class="col-6">
+                                                    <div class="mb-2">
+                                                        <small class="fw-semibold text-muted d-flex align-items-center mb-1">
+                                                            <i class="ri-file-text-line me-1"></i>
+                                                            Trabajo
+                                                        </small>
+                                                        <p class="mb-0 text-dark" style="font-size: 0.8rem; line-height: 1.3;">
+                                                            {{ $cliente->work_info ? Str::limit($cliente->work_info, 60) : 'Sin descripción' }}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+
+                                    <!-- Footer con fechas -->
+                                    <div class="card-footer bg-light border-0 p-3">
+                                        <div class="row g-3">
+                                            <div class="col-6">
+                                                <div class="text-center">
+                                                    <div class="d-flex align-items-center justify-content-center mb-1">
+                                                        <i class="ri-calendar-check-line text-success me-1"></i>
+                                                        <small class="fw-semibold text-muted">Inicio</small>
+                                                    </div>
+                                                    <div class="text-dark fw-medium" style="font-size: 0.8rem;">
+                                                        @if($cliente->start_date)
+                                                            {{ \Carbon\Carbon::parse($cliente->start_date)->locale('es')->isoFormat('D MMM YYYY') }}
+                                                        @else
+                                                            <span class="text-muted">Sin fecha</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="text-center">
+                                                    <div class="d-flex align-items-center justify-content-center mb-1">
+                                                        <i class="ri-calendar-check-line text-success me-1"></i>
+                                                        <small class="fw-semibold text-muted">Fin</small>
+                                                    </div>
+                                                    <div class="text-dark fw-medium" style="font-size: 0.8rem;">
+                                                        @if($cliente->end_date)
+                                                            {{ \Carbon\Carbon::parse($cliente->end_date)->locale('es')->isoFormat('D MMM YYYY') }}
+                                                        @else
+                                                            <span class="text-muted">Sin fecha</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </a>
                         </div>

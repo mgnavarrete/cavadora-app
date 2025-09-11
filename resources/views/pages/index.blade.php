@@ -99,10 +99,10 @@ document.addEventListener('DOMContentLoaded', function() {
             filteredOrders = ordenesActivas.filter(orden => orden.estado === filter);
         }
         
-        // Generar chunks de 3
+        // Generar chunks de 4
         const chunks = [];
-        for (let i = 0; i < filteredOrders.length; i += 3) {
-            chunks.push(filteredOrders.slice(i, i + 3));
+        for (let i = 0; i < filteredOrders.length; i += 4) {
+            chunks.push(filteredOrders.slice(i, i + 4));
         }
         
         // Limpiar carrusel actual
@@ -133,54 +133,77 @@ document.addEventListener('DOMContentLoaded', function() {
                     const estadoTexto = getEstadoTexto(orden.estado);
                     
                     rowContent += `
-                        <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                        <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-6 col-sm-12">
                             <a href="/orders/${orden.id_order}" class="text-decoration-none">
-                                <div class="card custom-card team-member-card" style="height: 250px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                                    <div class="teammember-cover-image">
-                                        <img src="/build/assets/images/profile/machine.jpg" class="object-fit-cover card-img-top" style="height: 80px;">
-                                    </div>
-                                    <div class="card-body p-3 h-100">
-                                        <div class="d-flex justify-content-between align-items-start mb-3">
-                                            <h6 class="mb-0 fw-semibold fs-15 text-dark">${orden.client_name}</h6>
-                                            <span class="badge ${estadoColor} fs-10">${estadoTexto}</span>
+                                                    <div class="card custom-card team-member-card d-flex flex-column" style="height: 350px; width: 100%; max-width: 300px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                    <div class="position-relative">
+                                        <div class="teammember-cover-image">
+                                            <img src="/build/assets/images/profile/machine.jpg" class="object-fit-cover card-img-top" style="height: 60px;">
                                         </div>
-                                        <div class="row g-2">
-                                            <div class="col-6">
-                                                ${orden.cliente_rut ? `
-                                                    <div class="d-flex align-items-center mb-2">
-                                                        <i class="ti ti-id fs-12 text-muted me-2"></i>
-                                                        <span class="fs-12 text-muted">${orden.cliente_rut}</span>
-                                                    </div>
-                                                ` : ''}
-                                                ${orden.client_phone ? `
-                                                    <div class="d-flex align-items-center mb-2">
-                                                        <i class="ti ti-phone fs-12 text-muted me-2"></i>
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge ${estadoColor} fs-10 px-2 py-1">${estadoTexto}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="card-body p-3 flex-grow-1 d-flex flex-column">
+                                        <div class="mb-3">
+                                            <h6 class="mb-0 fw-semibold fs-16 text-dark">${orden.client_name}</h6>
+                                            ${orden.cliente_rut ? `<small class="text-muted fs-11">${orden.cliente_rut}</small>` : ''}
+                                        </div>
+                                        
+                                        <div class="mb-3 flex-grow-1">
+                                            ${orden.client_phone ? `
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="ti ti-phone fs-12 text-primary me-2"></i>
+                                                    <div>
+                                                        <small class="fs-10 fw-semibold text-primary d-block">Teléfono</small>
                                                         <span class="fs-12 text-muted">${orden.client_phone}</span>
                                                     </div>
-                                                ` : ''}
-                                                ${orden.client_address ? `
-                                                    <div class="d-flex align-items-start">
-                                                        <i class="ti ti-map-pin fs-12 text-muted me-2 mt-1"></i>
-                                                        <span class="fs-12 text-muted">${orden.client_address.length > 20 ? orden.client_address.substring(0, 20) + '...' : orden.client_address}</span>
+                                                </div>
+                                            ` : ''}
+                                            
+                                            ${orden.client_address ? `
+                                                <div class="d-flex align-items-start mb-2">
+                                                    <i class="ti ti-map-pin fs-12 text-warning me-2 mt-1"></i>
+                                                    <div>
+                                                        <small class="fs-10 fw-semibold text-warning d-block">Dirección</small>
+                                                        <span class="fs-12 text-muted">${orden.client_address.length > 35 ? orden.client_address.substring(0, 35) + '...' : orden.client_address}</span>
                                                     </div>
-                                                ` : ''}
-                                            </div>
-                                            <div class="col-6">
-                                                ${orden.work_info ? `
-                                                    <div class="d-flex align-items-start h-100">
-                                                        <i class="ti ti-tools fs-12 text-primary me-2 mt-1"></i>
-                                                        <div class="flex-grow-1">
-                                                            <p class="mb-1 fs-11 fw-semibold text-primary">Trabajo:</p>
-                                                            <p class="mb-0 fs-12 text-muted lh-sm">${orden.work_info}</p>
-                                                        </div>
+                                                </div>
+                                            ` : ''}
+                                            
+                                            ${orden.start_date ? `
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <i class="ti ti-calendar fs-12 text-info me-2"></i>
+                                                    <div>
+                                                        <small class="fs-10 fw-semibold text-info d-block">Fecha Inscripción</small>
+                                                        <span class="fs-12 text-muted">${new Date(orden.start_date).toLocaleDateString('es-ES')}</span>
                                                     </div>
-                                                ` : `
-                                                    <div class="d-flex align-items-center justify-content-center h-100">
-                                                        <span class="fs-12 text-muted">Sin información de trabajo</span>
+                                                </div>
+                                            ` : ''}
+                                            
+                                            ${orden.work_info ? `
+                                                <div class="d-flex align-items-start mb-2">
+                                                    <i class="ti ti-tools fs-12 text-primary me-2 mt-1"></i>
+                                                    <div class="flex-grow-1">
+                                                        <p class="mb-1 fs-11 fw-semibold text-primary">Trabajo:</p>
+                                                        <p class="fs-12 text-muted" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; max-height: 2.8em;">${orden.work_info}</p>
                                                     </div>
-                                                `}
-                                            </div>
+                                                </div>
+                                            ` : ''}
                                         </div>
+                                        
+                                        
+                                        ${orden.client_info ? `
+                                            <div class="mt-2">
+                                                <div class="d-flex align-items-start">
+                                                    <i class="ti ti-note fs-12 text-info me-2 mt-1"></i>
+                                                    <div class="flex-grow-1">
+                                                        <p class="mb-0 fs-11 text-muted lh-sm">${orden.client_info.length > 50 ? orden.client_info.substring(0, 50) + '...' : orden.client_info}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ` : ''}
                                     </div>
                                 </div>
                             </a>
@@ -429,7 +452,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div id="ordersCarousel" class="carousel slide border-0" data-bs-ride="carousel" data-bs-interval="5000">
                         <div class="carousel-inner">
                             @php
-                                $chunks = $ordenesActivas->chunk(3); // 3 cards por slide
+                                $chunks = $ordenesActivas->chunk(4); // 3 cards por slide
                             @endphp
                             @foreach($chunks as $index => $chunk)
                                 <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
@@ -438,8 +461,8 @@ document.addEventListener('DOMContentLoaded', function() {
                                             @php
                                                 $estadoColor = match(strtolower($cliente->estado)) {
                                                     'not_confirmed' => 'bg-warning',
-                                                    'confirmed' => 'bg-info',
-                                                    'in_progress' => 'bg-primary',
+                                                    'confirmed' => 'bg-primary',
+                                                    'in_progress' => 'bg-secondary',
                                                     'done' => 'bg-success',
                                                     'canceled' => 'bg-danger',
                                                     default => 'bg-secondary'
@@ -452,61 +475,95 @@ document.addEventListener('DOMContentLoaded', function() {
                                                     'canceled' => 'Cancelado',
                                                     default => ucfirst($cliente->estado)
                                                 };
+                                                $estadoIcon = match($cliente->estado) {
+                                                    'confirmed' => 'ri-check-line',
+                                                    'done' => 'ri-check-double-line',
+                                                    'not_confirmed' => 'ri-time-line',
+                                                    'canceled' => 'ri-close-line',
+                                                    'in_progress' => 'ri-loader-4-line',
+                                                    default => 'ri-question-line'
+                                                };
                                             @endphp
-                                            <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                                            <div class="col-xxl-3 col-xl-3 col-lg-3 col-md-6 col-sm-12">
                                                 <a href="{{ route('orders.show', $cliente->id_order) }}" class="text-decoration-none">
-                                                    <div class="card custom-card team-member-card" style="height: 250px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-                                                        <div class="teammember-cover-image">
-                                                            <img src="{{asset('build/assets/images/profile/machine.jpg')}}" class="object-fit-cover card-img-top" style="height: 80px;">
-                                                        </div> 
-                                                        <div class="card-body p-3 h-100">
-                                                            <!-- Header con estado y nombre -->
-                                                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                                                <h6 class="mb-0 fw-semibold fs-15 text-dark">{{ $cliente->client_name }}</h6>
-                                                                <span class="badge {{ $estadoColor }} fs-10">{{ $estadoTexto }}</span>
+                                                    <div class="card custom-card team-member-card d-flex flex-column" style="height: 325px; width: 100%; max-width: 300px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                                        <!-- Header con imagen y estado -->
+                                                        <div class="position-relative">
+                                                            <div class="teammember-cover-image">
+                                                                <img src="{{asset('build/assets/images/profile/machine.jpg')}}" class="object-fit-cover card-img-top" style="height: 60px;">
+                                                            </div>
+                                                            <div class="position-absolute top-0 end-0 m-2">
+                                                                <span class="badge {{ $estadoColor }} fs-10 px-2 py-1 align-items-center">
+                                                                    <i class="{{ $estadoIcon }}"></i>
+                                                                    {{ $estadoTexto }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="card-body p-3 flex-grow-1 d-flex flex-column">
+                                                            <!-- Nombre del cliente -->
+                                                            <div class="mb-3">
+                                                                <h6 class="mb-0 fw-semibold fs-16 text-dark">{{ $cliente->client_name }}</h6>
+                                                                @if($cliente->cliente_rut)
+                                                                    <small class="text-muted fs-11">{{ $cliente->cliente_email }}</small>
+                                                                @endif
                                                             </div>
                                                             
-                                                            <!-- Contenido en dos columnas -->
-                                                            <div class="row g-2">
-                                                                <!-- Columna izquierda: Información de contacto -->
-                                                                <div class="col-6">
-                                                                    @if($cliente->cliente_rut)
-                                                                        <div class="d-flex align-items-center mb-2">
-                                                                            <i class="ti ti-id fs-12 text-muted me-2"></i>
-                                                                            <span class="fs-12 text-muted">{{ $cliente->cliente_rut }}</span>
-                                                                        </div>
-                                                                    @endif
-                                                                    @if($cliente->client_phone)
-                                                                        <div class="d-flex align-items-center mb-2">
-                                                                            <i class="ti ti-phone fs-12 text-muted me-2"></i>
+                                                            <!-- Información vertical -->
+                                                            <div class="mb-3 flex-grow-1">
+                                                                @if($cliente->client_phone)
+                                                                    <div class="d-flex align-items-center mb-2">
+                                                                        <i class="ti ti-phone fs-12 text-primary me-2"></i>
+                                                                        <div>
+                                                                            <small class="fs-10 fw-semibold text-primary d-block">Teléfono</small>
                                                                             <span class="fs-12 text-muted">{{ $cliente->client_phone }}</span>
                                                                         </div>
-                                                                    @endif
-                                                                    @if($cliente->client_address)
-                                                                        <div class="d-flex align-items-start">
-                                                                            <i class="ti ti-map-pin fs-12 text-muted me-2 mt-1"></i>
-                                                                            <span class="fs-12 text-muted">{{ Str::limit($cliente->client_address, 20) }}</span>
-                                                                        </div>
-                                                                    @endif
-                                                                </div>
+                                                                    </div>
+                                                                @endif
                                                                 
-                                                                <!-- Columna derecha: Información de trabajo -->
-                                                                <div class="col-6">
-                                                                    @if($cliente->work_info)
-                                                                        <div class="d-flex align-items-start h-100">
-                                                                            <i class="ti ti-tools fs-12 text-primary me-2 mt-1"></i>
-                                                                            <div class="flex-grow-1">
-                                                                                <p class="mb-1 fs-11 fw-semibold text-primary">Trabajo:</p>
-                                                                                <p class="mb-0 fs-12 text-muted lh-sm">{{ $cliente->work_info }}</p>
-                                                                            </div>
+                                                                @if($cliente->client_address)
+                                                                    <div class="d-flex align-items-start mb-2">
+                                                                        <i class="ti ti-map-pin fs-12 text-warning me-2 mt-1"></i>
+                                                                        <div>
+                                                                            <small class="fs-10 fw-semibold text-warning d-block">Dirección</small>
+                                                                            <span class="fs-12 text-muted">{{ Str::limit($cliente->client_address, 35) }}</span>
                                                                         </div>
-                                                                    @else
-                                                                        <div class="d-flex align-items-center justify-content-center h-100">
-                                                                            <span class="fs-12 text-muted">Sin información de trabajo</span>
+                                                                    </div>
+                                                                @endif
+                                                                
+                                                                @if($cliente->start_date)
+                                                                    <div class="d-flex align-items-center mb-2">
+                                                                        <i class="ti ti-calendar fs-12 text-info me-2"></i>
+                                                                        <div>
+                                                                            <small class="fs-10 fw-semibold text-info d-block">Fecha Inscripción</small>
+                                                                            <span class="fs-12 text-muted">{{ \Carbon\Carbon::parse($cliente->start_date)->format('d/m/Y') }}</span>
                                                                         </div>
-                                                                    @endif
-                                                                </div>
+                                                                    </div>
+                                                                @endif
+                                                                
+                                                                @if($cliente->work_info)
+                                                                    <div class="d-flex align-items-start mb-2">
+                                                                        <i class="ti ti-tools fs-12 text-primary me-2 mt-1"></i>
+                                                                        <div class="flex-grow-1">
+                                                                            <p class="mb-1 fs-11 fw-semibold text-primary">Trabajo:</p>
+                                                                            <p class="fs-12 text-muted" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; max-height: 2.8em;">{{ $cliente->work_info }}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
                                                             </div>
+                                                            
+                                                            
+                                                            <!-- Información adicional del cliente -->
+                                                            @if($cliente->client_info)
+                                                                <div class="mt-2">
+                                                                    <div class="d-flex align-items-start">
+                                                                        <i class="ti ti-note fs-12 text-info me-2 mt-1"></i>
+                                                                        <div class="flex-grow-1">
+                                                                            <p class="mb-0 fs-11 text-muted lh-sm">{{ Str::limit($cliente->client_info, 50) }}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 </a>
@@ -540,22 +597,35 @@ document.addEventListener('DOMContentLoaded', function() {
    
     <div class="container-fluid">
         <div class="row">
-           <!-- Timeline: Próximos Eventos (Turnos) -->
+            <!-- Timeline: Próximos Eventos (Turnos) -->
             <div class="col-md-7">
-                <div class="card custom-card flex-fill timeline-container">
-                    <div class="card-header d-flex justify-content-between">
-                        <p class="card-title fw-semibold fs-18 mb-0">Próximos Turnos</p>
-                        <div class="dropdown ms-2">
-                            <button class="btn btn-light btn-wave waves-effect waves-light px-2 w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="ri-add-line align-middle me-1 ms-1 fw-semibold d-inline-block fs-18"></i>
+                <div class="card custom-card flex-fill timeline-container" style="border: 1px solid #e9ecef; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="background: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <i class="ri-calendar-schedule-line text-primary fs-20"></i>
+                            </div>
+                            <div>
+                                <p class="card-title fw-bold fs-18 mb-0 text-dark">Próximos Turnos</p>
+
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-light btn-wave waves-effect waves-light px-3 py-2" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 8px;">
+                                <i class="ri-add-line me-1"></i>
+                                <span class="fw-semibold">Agregar</span>
                             </button>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="{{ route('orders.create') }}">Nuevo Trabajo</a></li>
-                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createShiftModal">Nuevo Turno</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end" style="border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                                <li><a class="dropdown-item d-flex align-items-center" href="{{ route('orders.create') }}">
+                                    <i class="ri-briefcase-line me-2 text-primary"></i>Nuevo Trabajo
+                                </a></li>
+                                <li><a class="dropdown-item d-flex align-items-center" href="#" data-bs-toggle="modal" data-bs-target="#createShiftModal">
+                                    <i class="ri-calendar-event-line me-2 text-success"></i>Nuevo Turno
+                                </a></li>
                             </ul>
                         </div>
                     </div>
-                    <div class="card-body p-0" style="height: 600px; overflow-y: auto;">
+                    <div class="card-body p-0" style="height: 600px; overflow-y: auto; background: #f8f9fa;">
                         @php
                             use Carbon\Carbon;
 
@@ -596,152 +666,256 @@ document.addEventListener('DOMContentLoaded', function() {
                             });
                         @endphp
 
-                        <ul class="timeline list-unstyled mb-5">
+                        <div class="p-4">
                             @forelse($eventos as $evento)
-                                <li>
-                                    <div class="timeline-time text-end">
-                                        <span class="date">
-                                            {{ optional($evento['start_at'])->isToday() ? 'Hoy' : optional($evento['start_at'])->translatedFormat('l') }}
-                                        </span>
-                                        <span class="time d-inline-block">
-                                            {{ optional($evento['start_at'])->format('H:i') }}
-                                        </span>
-                                    </div>
-                                    <div class="timeline-icon"></div>
-                                    <div class="timeline-body {{ $evento === $eventoMasProximo ? 'bg-outline-secondary' : 'bg-outline-primary' }}">
-                                        <a href="javascript:void(0);" data-bs-target="#editShift{{ $evento['id'] }}" data-bs-toggle="modal">
-                                            <div class="d-flex align-items-top timeline-main-content flex-wrap mt-0">
-                                                <div class="avatar avatar-md me-3 avatar-rounded mt-sm-0 mt-4">
-                                                    <span class="avatar avatar-md avatar-rounded bg-primary d-inline-flex align-items-center justify-content-center">
-                                                        <i class="ti ti-calendar-event fs-16"></i>
-                                                    </span>
-                                                </div>
-                                                <div class="flex-fill">
+                                @php
+                                    $colorEstado = match(strtolower($evento['status'])) {
+                                        'pending'     => 'bg-warning',
+                                        'canceled'    => 'bg-danger',
+                                        'completed'   => 'bg-success',
+                                        'rescheduled' => 'bg-info',
+                                        default       => 'bg-light text-muted'
+                                    };
+                                    $estadoShift = match(strtolower($evento['status'])) {
+                                        'pending'     => 'Pendiente',
+                                        'canceled'    => 'Cancelado',
+                                        'completed'   => 'Completado',
+                                        'rescheduled' => 'Reagendado',
+                                        default       => $evento['status']
+                                    };
+                                    $iconoEstado = match(strtolower($evento['status'])) {
+                                        'pending'     => 'ri-time-line',
+                                        'canceled'    => 'ri-close-line',
+                                        'completed'   => 'ri-check-line',
+                                        'rescheduled' => 'ri-refresh-line',
+                                        default       => 'ri-question-line'
+                                    };
+                                @endphp
+                                <div class="timeline-item mb-4" style="position: relative;">
+                                    <a href="javascript:void(0);" data-bs-target="#editShift{{ $evento['id'] }}" data-bs-toggle="modal" class="text-decoration-none">
+                                        <div class="card border-0 shadow-sm" style="border-radius: 12px; transition: all 0.3s ease;" 
+                                             onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.15)'" 
+                                             onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.08)'">
+                                            
+                                            <!-- Header del turno -->
+                                            <div class="card-header d-flex justify-content-between align-items-center border-2">
+                                                <div class="d-flex justify-content-between align-items-between">
                                                     <div class="d-flex align-items-center">
-                                                        <div class="mt-sm-0 mt-2">
-                                                            <p class="mb-0 fs-14 fw-semibold">{{ $evento['client'] }}</p>
-                                                            <p class="mb-0 text-muted">{{ $evento['address'] }}</p>
+                                                        <div class="me-3">
+                                                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                                <i class="ri-calendar-event-line text-white fs-16"></i>
+                                                            </div>
                                                         </div>
-                                                        <div class="ms-auto">
-                                                            @php
-                                                                $colorEstado = match(strtolower($evento['status'])) {
-                                                                    'pending'     => 'bg-secondary',
-                                                                    'canceled'    => 'bg-danger',
-                                                                    'completed'   => 'bg-success',
-                                                                    'rescheduled' => 'bg-warning',
-                                                                    default       => 'bg-light text-muted'
-                                                                };
-                                                                $estadoShift = match(strtolower($evento['status'])) {
-                                                                'pending'     => 'Pendiente',
-                                                                'canceled'    => 'Cancelado',
-                                                                'completed'   => 'Completado',
-                                                                'rescheduled' => 'Reagendado',
-                                                                default       => $evento['status']
-                                                            };
-                                                            @endphp
-                                                            <span class=" badge {{ $colorEstado }} mt-0 mt-sm-0">
-                                                                {{ ucfirst($estadoShift) }}
+                                                        <div>
+                                                            <h6 class="mb-0 fw-bold text-dark">{{ $evento['client'] }}</h6>
+                                                            <small class="text-muted">
+                                                                <i class="ri-map-pin-line me-1"></i>
+                                                                {{ Str::limit($evento['address'], 40) }}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                            </div>
+                                                    <div class="ms-auto d-flex align-items-end text-end">
+                                                        <span class="badge {{ $colorEstado }} px-3 py-2 d-flex align-items-between gap-1" style="font-size: 0.75rem;">
+                                                            <i class="{{ $iconoEstado }}"></i>
+                                                            {{ ucfirst($estadoShift) }}
+                                                        </span>
+                                                    </div>
+                                                
+                                            </div>
+                                            
+                                            <!-- Contenido del turno -->
+                                            <div class="card-body p-3">
+                                                <div class="row align-items-center">
+                                                    <div class="col-8">
+                                                        <div class="d-flex align-items-center mb-2">
+                                                            <i class="ri-time-line text-primary me-2"></i>
+                                                            <span class="fw-semibold text-dark">
+                                                                {{ optional($evento['start_at'])->isToday() ? 'Hoy' : optional($evento['start_at'])->translatedFormat('l') }}
+                                                            </span>
+                                                        </div>
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="ri-clock-line text-success me-2"></i>
+                                                            <span class="text-muted">
+                                                                {{ optional($evento['start_at'])->format('H:i') }}
+                                                                @if($evento['end_time'])
+                                                                    - {{ $evento['end_time'] }}
+                                                                @endif
                                                             </span>
                                                         </div>
                                                     </div>
+                                                    <div class="col-4 text-end">
+                                                        <div class="bg-light rounded p-2 text-center">
+                                                            <div class="fw-bold text-primary fs-18">
+                                                                {{ optional($evento['start_at'])->format('d') }}
+                                                            </div>
+                                                            <div class="text-muted" style="font-size: 0.75rem;">
+                                                                {{ optional($evento['start_at'])->format('M') }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
+                                                
+                                                @if($evento['description'])
+                                                    <div class="mt-3 pt-3 border-top">
+                                                        <small class="text-muted">
+                                                            <i class="ri-file-text-line me-1"></i>
+                                                            {{ Str::limit($evento['description'], 60) }}
+                                                        </small>
+                                                    </div>
+                                                @endif
                                             </div>
-                                        </a>
-                                    </div>
-                                </li>
-                            @empty
-                                <li>
-                                    <div class="text-center">
-                                        <div class="alert alert-warning text-center mb-3 ms-3 me-3" role="alert">
-                                            No hay eventos agendados para esta semana
                                         </div>
+                                    </a>
+                                </div>
+                            @empty
+                                <div class="text-center py-5">
+                                    <div class="mb-4">
+                                        <i class="ri-calendar-event-line text-muted" style="font-size: 4rem;"></i>
                                     </div>
-                                </li>
+                                    <h5 class="text-muted mb-2">No hay turnos programados</h5>
+                                    <p class="text-muted mb-4">Comienza agregando un nuevo turno o trabajo</p>
+                                    <a href="{{ route('orders.create') }}" class="btn btn-primary">
+                                        <i class="ri-add-line me-1"></i>
+                                        Crear Primer Trabajo
+                                    </a>
+                                </div>
                             @endforelse
-                        </ul>
+                        </div>
                     </div>
                 </div>
             </div>
             <!-- Tabla: Pagos Pendientes -->
             <div class="col-md-5">
-                <div class="card custom-card flex-fill" >
-                    <div class="card-header d-flex justify-content-between">
-                        <p class="card-title fw-semibold fs-18 mb-0">Pagos del Mes</p>
+                <div class="card custom-card flex-fill" style="border: 1px solid #e9ecef; box-shadow: 0 2px 10px rgba(0,0,0,0.08);">
+                    <div class="card-header d-flex justify-content-between align-items-center" style="background: #f8f9fa; border-bottom: 1px solid #e9ecef;">
+                        <div class="d-flex align-items-center">
+        
+                            <div>
+                                <p class="card-title fw-bold fs-18 mb-0 text-dark">Pagos del Mes</p>
+       
+                            </div>
+                        </div>
+                        <div class="text-muted">
+                            <button class="btn btn-light btn-wave waves-effect waves-light px-3 py-2" type="button" style="border-radius: 8px;" onclick="window.location.href='{{ route('dashboard.index') }}'">
+                                <i class="ri-bar-chart-line fs-16 me-1"></i>
+                               
+                                </button>
+                          
+                        </div>
                     </div>
-                    <div class="card-body" style="height: 600px; overflow-y: auto;">
-                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th>Cliente</th>
-                                        <th>Fecha Emisión</th>
-                                        <th>Estado</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
+                    <div class="card-body p-0" style="height: 600px; overflow-y: auto; background: #f8f9fa;">
+                        <div class="p-4">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0" style="border-radius: 8px; overflow: hidden;">
+                                    <thead style="background: #e9ecef;">
+                                        <tr>
+                                            <th class="text-dark fw-semibold border-0 py-3 px-3" style="font-size: 0.85rem;">
+                                                <i class="ri-user-line me-1 text-primary"></i>Cliente
+                                            </th>
+                                            <th class="text-dark fw-semibold border-0 py-3 px-3" style="font-size: 0.85rem;">
+                                                <i class="ri-calendar-line me-1 text-primary"></i>Fecha
+                                            </th>
+                                            <th class="text-dark fw-semibold border-0 py-3 px-3" style="font-size: 0.85rem;">
+                                                <i class="ri-checkbox-circle-line me-1 text-primary"></i>Estado
+                                            </th>
+                                            <th class="text-dark fw-semibold border-0 py-3 px-3 text-end" style="font-size: 0.85rem;">
+                                                <i class="ri-money-dollar-circle-line me-1 text-primary"></i>Total
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white">
                                     @forelse($pagosPendientes as $pago)
                                     @php
                                         $totalPago = $pago->total_amount;
+                                        $colorEstado = match(strtolower($pago->status)) {
+                                            'pending'     => 'bg-warning',
+                                            'overdue'    => 'bg-danger',
+                                            'paid'   => 'bg-success',
+                                            'void'   => 'bg-secondary',
+                                            default       => 'bg-light text-muted'
+                                        };
+                                        $estadopago = match(strtolower($pago->status)) {
+                                            'pending'     => 'Pendiente',
+                                            'overdue'    => 'Atrasado',
+                                            'paid'   => 'Pagado',
+                                            'void'   => 'Anulado',
+                                            default       => $pago->status
+                                        };
+                                        $iconoEstado = match(strtolower($pago->status)) {
+                                            'pending'     => 'ri-time-line',
+                                            'overdue'    => 'ri-alarm-warning-line',
+                                            'paid'   => 'ri-check-line',
+                                            'void'   => 'ri-close-line',
+                                            default       => 'ri-question-line'
+                                        };
                                     @endphp
-                                    <tr>
-                                        <td>{{ optional($pago->order)->client_name }}</td>
-                                        <td>
+                                    <tr style="transition: all 0.3s ease;" 
+                                        onmouseover="this.style.backgroundColor='#f8f9fa'" 
+                                        onmouseout="this.style.backgroundColor='white'">
+                                        <td class="py-3 px-3 border-0">
+                                            <div class="d-flex align-items-center">
+                                                
+                                                <div>
+                                                    <div class="fw-semibold text-dark">{{ optional($pago->order)->client_name }}</div>
+                                                   
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-3 border-0">
                                             @php
                                                 $em = $pago->emission_date;
                                                 if ($em instanceof \Carbon\Carbon) {
                                                     $emFmt = $em->translatedFormat('d M Y');
                                                 } else {
-                                                    // recorta si viene con hora o formatos raros
                                                     $emStr = is_string($em) ? trim($em) : (string)$em;
-                                                    // si detecta un datetime, lo intenta parsear; si no, usa substr de fecha
                                                     try {
                                                         $emFmt = \Carbon\Carbon::parse($emStr)->translatedFormat('d M Y');
                                                     } catch (\Exception $e) {
-                                                        $emFmt = substr($emStr, 0, 10); // Y-m-d
+                                                        $emFmt = substr($emStr, 0, 10);
                                                     }
                                                 }
                                             @endphp
-                                            {{ $emFmt ?: '-' }}
+                                            <div class="d-flex align-items-center">
+                                                <i class="ri-calendar-line text-muted me-2"></i>
+                                                <span class="text-dark fw-medium">{{ $emFmt ?: '-' }}</span>
+                                            </div>
                                         </td>
-                                        <td>
-                                            @php
-                                                $colorEstado = match(strtolower($pago->status)) {
-                                                    'pending'     => 'bg-secondary',
-                                                    'overdue'    => 'bg-warning',
-                                                    'paid'   => 'bg-success',
-                                                    'void'   => 'bg-danger',
-                                            
-                                                    default       => 'bg-light text-muted'
-                                                };
-                                                $estadopago = match(strtolower($pago->status)) {
-                                                    'pending'     => 'Pendiente',
-                                                    'overdue'    => 'Atrasado',
-                                                    'paid'   => 'Pagado',
-                                                    'void'   => 'Anulado',
-                                            
-                                                    default       => $pago->status
-                                                };
-                                            @endphp
+                                        <td class="py-3 px-3 border-0">
                                             <a href="javascript:void(0);" data-bs-target="#editPayment{{ $pago->id_payment }}" data-bs-toggle="modal" class="text-decoration-none">
-                                                <span class="badge {{ $colorEstado }} timeline-badge mt-0 mt-sm-0">
+                                                <span class="badge {{ $colorEstado }} px-3 py-2 d-flex align-items-center gap-1" style="font-size: 0.75rem; border-radius: 20px;">
+                                                    <i class="{{ $iconoEstado }}"></i>
                                                     {{ ucfirst($estadopago) }}
                                                 </span>
                                             </a>
-                                           </td>
-                                        <td>${{ number_format($totalPago, 0, ',', '.') }}</td>
+                                        </td>
+                                        <td class="py-3 px-3 border-0 text-end">
+                                            <div class="d-flex align-items-center justify-content-end">
+                                                <i class="ri-money-dollar-circle-line text-success me-2"></i>
+                                                <span class="fw-bold text-dark fs-16">${{ number_format($totalPago, 0, ',', '.') }}</span>
+                                            </div>
+                                        </td>
                                     </tr>
                                     @empty
                                     <tr>
-                                        <td colspan="4" class="alert alert-warning text-center mb-3 ms-1 me-1" role="alert">
-                                            No hay pagos para mostrar este mes
+                                        <td colspan="4" class="py-5 text-center border-0">
+                                            <div class="d-flex flex-column align-items-center">
+                                                <div class="mb-4">
+                                                    <i class="ri-money-dollar-circle-line text-muted" style="font-size: 4rem;"></i>
+                                                </div>
+                                                <h5 class="text-muted mb-2">No hay pagos registrados</h5>
+                                                <p class="text-muted mb-4">No se encontraron pagos para este mes</p>
+                                                <a href="{{ route('orders.create') }}" class="btn btn-primary">
+                                                    <i class="ri-add-line me-1"></i>
+                                                    Crear Primer Trabajo
+                                                </a>
+                                            </div>
                                         </td>
                                     </tr>
                                     @endforelse
                                 </tbody>
                             </table>
                         </div>
-
                     </div>
                 </div>
             </div>

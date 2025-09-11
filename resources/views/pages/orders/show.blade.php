@@ -8,6 +8,92 @@
 @vite('resources/assets/js/date&time_pickers.js')
 <!-- INTERNAL PROFILE JS -->
 @vite('resources/assets/js/profile.js')
+
+<style>
+    .payment-card {
+        transition: all 0.3s ease;
+        border: none;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .payment-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+    .status-pending { 
+        background-color: rgb(var(--secondary-rgb)); 
+        color: white; 
+    }
+    .status-overdue { 
+        background-color: rgb(var(--warning-rgb)); 
+        color: #212529; 
+    }
+    .status-paid { 
+        background-color: rgb(var(--success-rgb)); 
+        color: white; 
+    }
+    .status-void { 
+        background-color: rgb(var(--danger-rgb)); 
+        color: white; 
+    }
+    
+    .payment-amount {
+        font-size: 18px;
+        font-weight: 700;
+        color: #2c3e50;
+    }
+    .client-name {
+        font-size: 16px;
+        font-weight: 600;
+        color: #34495e;
+        margin-bottom: 8px;
+    }
+    .payment-date {
+        font-size: 13px;
+        color: #7f8c8d;
+        margin-bottom: 12px;
+    }
+    
+    .action-btn {
+        background: rgba(108, 117, 125, 0.1);
+        border: none;
+        border-radius: 8px;
+        padding: 8px;
+        transition: all 0.2s ease;
+    }
+    .action-btn:hover {
+        background: rgba(108, 117, 125, 0.2);
+        transform: scale(1.05);
+    }
+    
+    /* Estados de hover mejorados */
+    .payment-card:hover .client-name {
+        color: #2c3e50;
+    }
+    
+    .payment-card:hover .payment-amount {
+        color: #1a252f;
+    }
+    
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+        .payment-card .card-body {
+            padding: 1.5rem;
+        }
+    }
+</style>
 @endsection
 
 @section('content')
@@ -19,7 +105,7 @@
     <!-- Page Header -->
     <div class="d-md-flex d-block align-items-center justify-content-between my-4 page-header-breadcrumb">
         
-        <h1 class="page-title fw-semibold fs-18 mb-0">Trabajo: {{ $order->client_name }}</h1>
+        <h1 class="page-title fw-semibold fs-18 mb-0">Detalle de Trabajo <span class="text-muted fs-14">#{{ $order->id_order }}</span> </h1>
         <div class="ms-md-1 ms-0">
             <nav>
                 <ol class="breadcrumb mb-0">
@@ -55,332 +141,471 @@
         <div class="col-md-5 d-flex">
             <div class="card custom-card overflow-hidden">
                 <div class="card-body p-0">
-                    <div class="d-sm-flex align-items-top p-4 border-bottom-0 main-profile-cover">
-                        
-                        <div>
-                            <span class="badge {{ $estadoColor }} position-absolute mb-5">{{ $estadoTexto }}</span>
+                    <!-- Header con información del cliente -->
+                    <div class="d-sm-flex align-items-top p-4 border-bottom-0 main-profile-cover position-relative">
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge {{ $estadoColor }} fs-12 px-3 py-2">{{ $estadoTexto }}</span>
                         </div>
                         <div class="flex-fill main-profile-info">
-                    
-                            <div class="d-flex flex-wrap align-item-center justify-content-between mt-3">
-                                <h6 class="fw-semibold mb-3 mt-3 text-fixed-white">{{ $order->client_name }} <span class="text-muted fs-14">#{{ $order->id_order }}</span></h6>
-                                <button class="btn btn-sm btn-icon btn-wave waves-effect waves-light fs-10 border-0 p-0" type="button" data-bs-toggle="modal" data-bs-target="#editOrder">
+                            <div class="d-flex flex-wrap align-item-center justify-content-between mb-4">
+                                <div>
+                                    <h5 class="fw-bold mb-1 text-fixed-white">{{ $order->client_name }}</h5>
+                                    <span class="text-muted fs-13">Orden #{{ $order->id_order }}</span>
+                                </div>
+                                <button class="btn btn-sm btn-icon btn-wave waves-effect waves-light fs-12 border-0 p-2" type="button" data-bs-toggle="modal" data-bs-target="#editOrder">
                                     <i class="ri-pencil-line text-white"></i>
                                 </button>
                             </div>
-                                
-                            <p class="fs-14 text-fixed-white mb-2 op-6">  
-                                <span class="me-2"><i class="bx bx-id-card me-1 align-middle"></i> {{ $order->cliente_rut ?? 'Sin RUT' }}</span> 
-                                <span><i class="ri-phone-line me-1 align-middle"></i> {{ $order->client_phone ?? 'Sin teléfono' }}</span> 
-                            </p>
-                            <p class="fs-14 text-fixed-white mb-2 op-6">  
-                                <span class="me-2"><i class="ri-home-heart-line me-1 align-middle"></i>{{ $order->client_address ?? 'Sin dirección' }}</span> 
-                            </p>
-                            <p class="fs-14 text-fixed-white mb-2 op-6">  
-                                <span class="me-2"><i class="ri-calendar-line me-1 align-middle"></i>
-                                    {{ $order->start_date ? \Carbon\Carbon::parse($order->start_date)->format('d-m-Y') : 'Sin fecha inicio' }}
-                                </span> 
+                            
+                            <!-- Información del cliente en cards más organizadas -->
+                            <div class="row g-2 mb-3">
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center text-fixed-white op-8">
+                                        <i class="bx bx-id-card me-2 fs-16"></i>
+                                        <span class="fs-13">{{ $order->cliente_rut ?? 'Sin RUT' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center text-fixed-white op-8">
+                                        <i class="ri-phone-line me-2 fs-16"></i>
+                                        <span class="fs-13">{{ $order->client_phone ?? 'Sin teléfono' }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="d-flex align-items-center text-fixed-white op-8">
+                                        <i class="ri-home-heart-line me-2 fs-16"></i>
+                                        <span class="fs-13">{{ $order->client_address ?? 'Sin dirección' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Fechas en una sola línea más compacta -->
+                            <div class="d-flex flex-wrap gap-3 text-fixed-white op-8">
+                                <div class="d-flex align-items-center">
+                                    <i class="ri-calendar-line me-1 fs-14"></i>
+                                    <span class="fs-13">{{ $order->start_date ? \Carbon\Carbon::parse($order->start_date)->format('d-m-Y') : 'Sin fecha inicio' }}</span>
+                                </div>
                                 @if($order->end_date)
-                                <span><i class="ri-calendar-check-line me-1 align-middle"></i>{{ \Carbon\Carbon::parse($order->end_date)->format('d-m-Y') }}</span>
+                                <div class="d-flex align-items-center">
+                                    <i class="ri-calendar-check-line me-1 fs-14"></i>
+                                    <span class="fs-13">{{ \Carbon\Carbon::parse($order->end_date)->format('d-m-Y') }}</span>
+                                </div>
                                 @endif
-                            </p>
-                            @if($duracionDias)
-                            <p class="fs-14 text-fixed-white mb-2 op-6">  
-                                <span><i class="ri-time-line me-1 align-middle"></i>Duración estimada: {{ $duracionDias }} días</span>
-                            </p>
-                            @endif
+                                @if($duracionDias)
+                                <div class="d-flex align-items-center">
+                                    <i class="ri-time-line me-1 fs-14"></i>
+                                    <span class="fs-13">{{ $duracionDias }} días</span>
+                                </div>
+                                @endif
+                            </div>
                         </div>
                     </div>
+
+                    <!-- Descripción del trabajo -->
                     <div class="p-4 border-bottom border-block-end-dashed">
-                        <div class="mb-4">
-                            <div class="d-flex flex-wrap align-item-center justify-content-between">
-                                <p class="fs-15 mb-2 me-4 fw-semibold">Descripción del Trabajo:</p>
-                            </div>
-                            <p class="fs-12 text-muted op-7 mb-0">
+                        <h6 class="fw-semibold mb-3 text-dark">
+                            <i class="ri-file-text-line me-2 text-primary"></i>Descripción del Trabajo
+                        </h6>
+                        <div class="bg-light rounded p-3">
+                            <p class="fs-13 text-muted mb-0 lh-base">
                                 {{ $order->work_info ?? 'Sin descripción del trabajo especificada.' }}
                             </p>
-                        </div>   
-                    </div>  
-
-                    <div class="p-4 border-bottom border-block-end-dashed">
-                        <div class="d-flex flex-wrap align-item-center justify-content-between">
-                            <p class="fs-15 mb-2 me-4 fw-semibold">Estadísticas del Trabajo:</p>
                         </div>
+                    </div>
+
+                    <!-- Estadísticas del trabajo -->
+                    <div class="p-4 border-bottom border-block-end-dashed">
+                        <h6 class="fw-semibold mb-3 text-dark">
+                            <i class="ri-bar-chart-line me-2 text-primary"></i>Estadísticas del Trabajo
+                        </h6>
                         
-                        <div class="text-muted">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <p class="mb-3">
-                                        <span class="avatar avatar-sm avatar-rounded me-2 bg-primary text-white">
-                                            <i class="ri-calendar-todo-fill align-middle fs-14"></i>
-                                        </span>
-                                        Total Turnos: <strong>{{ $estadisticas['total_turnos'] }}</strong>
-                                    </p>
-                                    <p class="mb-3">
-                                        <span class="avatar avatar-sm avatar-rounded me-2 bg-success text-white">
-                                            <i class="ri-checkbox-circle-fill align-middle fs-14"></i>
-                                        </span>
-                                        Completados: <strong>{{ $estadisticas['turnos_completados'] }}</strong>
-                                    </p>
-                                    <p class="mb-3">
-                                        <span class="avatar avatar-sm avatar-rounded me-2 bg-warning text-white">
-                                            <i class="ri-time-fill align-middle fs-14"></i>
-                                        </span>
-                                        Pendientes: <strong>{{ $estadisticas['turnos_pendientes'] }}</strong>
-                                    </p>
+                        <div class="row g-3">
+                            <!-- Columna de turnos -->
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-3 h-100">
+                                    <h6 class="fs-12 fw-semibold text-muted mb-3 text-uppercase">Turnos</h6>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="avatar avatar-xs avatar-rounded me-2 bg-primary text-white">
+                                            <i class="ri-calendar-todo-fill align-middle fs-12"></i>
+                                        </div>
+                                        <span class="fs-13">Total: <strong class="text-dark">{{ $estadisticas['total_turnos'] }}</strong></span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="avatar avatar-xs avatar-rounded me-2 bg-success text-white">
+                                            <i class="ri-checkbox-circle-fill align-middle fs-12"></i>
+                                        </div>
+                                        <span class="fs-13">Completados: <strong class="text-success">{{ $estadisticas['turnos_completados'] }}</strong></span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-xs avatar-rounded me-2 bg-warning text-white">
+                                            <i class="ri-time-fill align-middle fs-12"></i>
+                                        </div>
+                                        <span class="fs-13">Pendientes: <strong class="text-warning">{{ $estadisticas['turnos_pendientes'] }}</strong></span>
+                                    </div>
                                 </div>
-                               
-                                <div class="col-md-6">
-                                    <p class="mb-3">
-                                        <span class="avatar avatar-sm avatar-rounded me-2 bg-info text-white">
-                                            <i class="ri-money-dollar-circle-fill align-middle fs-14"></i>
-                                        </span>
-                                        Total Facturado: <strong>${{ number_format($estadisticas['total_facturado'], 0, ',', '.') }}</strong>
-                                    </p>
-                                    <p class="mb-3">
-                                        <span class="avatar avatar-sm avatar-rounded me-2 bg-success text-white">
-                                            <i class="ri-money-dollar-box-fill align-middle fs-14"></i>
-                                        </span>
-                                        Total Pagado: <strong>${{ number_format($estadisticas['total_pagado'], 0, ',', '.') }}</strong>
-                                    </p>
-                                    <p class="mb-3">
-                                        <span class="avatar avatar-sm avatar-rounded me-2 bg-danger text-white">
-                                            <i class="ri-error-warning-fill align-middle fs-14"></i>
-                                        </span>
-                                        Pagos Pendientes: <strong>{{ $estadisticas['pagos_pendientes'] }}</strong>
-                                    </p>
+                            </div>
+                           
+                            <!-- Columna de pagos -->
+                            <div class="col-md-6">
+                                <div class="bg-light rounded p-3 h-100">
+                                    <h6 class="fs-12 fw-semibold text-muted mb-3 text-uppercase">Pagos</h6>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="avatar avatar-xs avatar-rounded me-2 bg-info text-white">
+                                            <i class="ri-money-dollar-circle-fill align-middle fs-12"></i>
+                                        </div>
+                                        <span class="fs-13">Facturado: <strong class="text-info">${{ number_format($estadisticas['total_facturado'], 0, ',', '.') }}</strong></span>
+                                    </div>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <div class="avatar avatar-xs avatar-rounded me-2 bg-success text-white">
+                                            <i class="ri-money-dollar-box-fill align-middle fs-12"></i>
+                                        </div>
+                                        <span class="fs-13">Pagado: <strong class="text-success">${{ number_format($estadisticas['total_pagado'], 0, ',', '.') }}</strong></span>
+                                    </div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-xs avatar-rounded me-2 bg-danger text-white">
+                                            <i class="ri-error-warning-fill align-middle fs-12"></i>
+                                        </div>
+                                        <span class="fs-13">Pendientes: <strong class="text-danger">{{ $estadisticas['pagos_pendientes'] }}</strong></span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="p-4 border-block-end-dashed">
-                        <div class="d-flex flex-wrap align-item-center justify-content-between">
-                            <p class="fs-15 mb-2 me-4 fw-semibold">Próximos Turnos:</p>
-                            
-                        </div>
-                        <div class="text-muted">
-                            <div class="row">
-                                @if($proximosTurnos->isEmpty())
-                                <p class="mb-3">
-                                    No hay turnos programados próximamente.
-                                </p>
-                                @else
-                                    @foreach ($proximosTurnos as $turno)
-                                        <div class="col-12 mb-3 pb-3 border-bottom border-block-end-dashed">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div>
-                                                    <p class="mb-2">
-                                                        <span class="avatar avatar-sm avatar-rounded me-2 bg-primary text-white">
-                                                            <i class="ri-calendar-line align-middle fs-14"></i>
-                                                        </span>
-                                                        <strong>{{ $turno->start_at ? $turno->start_at->translatedFormat('l, j \\d\\e F') : $turno->shift_date }}</strong>
-                                                    </p>
-                                                    <p class="mb-2">
-                                                        <span class="avatar avatar-sm avatar-rounded me-2 bg-info text-white">
-                                                            <i class="ri-time-line align-middle fs-14"></i>
-                                                        </span>
+                    <!-- Próximos turnos -->
+                    <div class="p-4">
+                        <h6 class="fw-semibold mb-3 text-dark">
+                            <i class="ri-calendar-schedule-line me-2 text-primary"></i>Próximos Turnos
+                        </h6>
+                        
+                        @if($proximosTurnos->isEmpty())
+                            <div class="text-center py-4">
+                                <div class="avatar avatar-lg avatar-rounded bg-light text-muted mb-3">
+                                    <i class="ri-calendar-line align-middle fs-24"></i>
+                                </div>
+                                <p class="text-muted fs-13 mb-0">No hay turnos programados próximamente</p>
+                            </div>
+                        @else
+                            <div class="space-y-3">
+                                @foreach ($proximosTurnos as $turno)
+                                    <div class="card border border-light rounded-3 p-3 mb-3">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div class="flex-grow-1">
+                                                <!-- Fecha del turno -->
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div class="avatar avatar-xs avatar-rounded me-2 bg-primary text-white">
+                                                        <i class="ri-calendar-line align-middle fs-12"></i>
+                                                    </div>
+                                                    <strong class="fs-13 text-dark">{{ $turno->start_at ? $turno->start_at->translatedFormat('l, j \\d\\e F') : $turno->shift_date }}</strong>
+                                                </div>
+                                                
+                                                <!-- Horario -->
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div class="avatar avatar-xs avatar-rounded me-2 bg-info text-white">
+                                                        <i class="ri-time-line align-middle fs-12"></i>
+                                                    </div>
+                                                    <span class="fs-13 text-muted">
                                                         {{ $turno->start_at ? $turno->start_at->format('H:i') : $turno->start_time }}
                                                         @if($turno->end_time) - {{ $turno->end_at ? $turno->end_at->format('H:i') : $turno->end_time }} @endif
-                                                    </p>
-                                                    @if($turno->responsible)
-                                                    <p class="mb-2">
-                                                        <span class="avatar avatar-sm avatar-rounded me-2 bg-success text-white">
-                                                            <i class="ri-user-line align-middle fs-14"></i>
-                                                        </span>
-                                                        {{ $turno->responsible }}
-                                                    </p>
-                                                    @endif
-                                                    @if($turno->description)
-                                                    <p class="mb-0 text-muted fs-12">
+                                                    </span>
+                                                </div>
+                                                
+                                                <!-- Responsable -->
+                                                @if($turno->responsible)
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div class="avatar avatar-xs avatar-rounded me-2 bg-success text-white">
+                                                        <i class="ri-user-line align-middle fs-12"></i>
+                                                    </div>
+                                                    <span class="fs-13 text-muted">{{ $turno->responsible }}</span>
+                                                </div>
+                                                @endif
+                                                
+                                                <!-- Descripción -->
+                                                @if($turno->description)
+                                                <div class="mt-2">
+                                                    <p class="fs-12 text-muted mb-0 lh-base">
                                                         {{ Str::limit($turno->description, 80) }}
                                                     </p>
-                                                    @endif
                                                 </div>
-                                                    @php
-                                                    $colorEstado = match(strtolower($turno->status)) {
-                                                        'pending'     => 'bg-secondary',
-                                                        'canceled'    => 'bg-danger',
-                                                        'completed'   => 'bg-success',
-                                                        'rescheduled' => 'bg-warning',
-                                                        default       => 'bg-light text-muted'
-                                                    };
-                                                    $estadoShift = match(strtolower($turno->status)) {
-                                                                'pending'     => 'Pendiente',
-                                                                'canceled'    => 'Cancelado',
-                                                                'completed'   => 'Completado',
-                                                                'rescheduled' => 'Reagendado',
-                                                                default       => $evento['status']
-                                                            };
-                                                    @endphp
-                                                <span class="badge {{ $colorEstado }}">{{ ucfirst($estadoShift) }}</span>
+                                                @endif
                                             </div>
+                                            
+                                            <!-- Estado del turno -->
+                                            @php
+                                            $colorEstado = match(strtolower($turno->status)) {
+                                                'pending'     => 'bg-secondary',
+                                                'canceled'    => 'bg-danger',
+                                                'completed'   => 'bg-success',
+                                                'rescheduled' => 'bg-warning',
+                                                default       => 'bg-light text-muted'
+                                            };
+                                            $estadoShift = match(strtolower($turno->status)) {
+                                                'pending'     => 'Pendiente',
+                                                'canceled'    => 'Cancelado',
+                                                'completed'   => 'Completado',
+                                                'rescheduled' => 'Reagendado',
+                                                default       => $evento['status']
+                                            };
+                                            @endphp
+                                            <span class="badge {{ $colorEstado }} fs-11 px-2 py-1">{{ ucfirst($estadoShift) }}</span>
                                         </div>
-                                    @endforeach
-                                @endif
+                                    </div>
+                                @endforeach
                             </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-md-7 d-flex">
-            <div class="card custom-card" style="background-color: transparent;">
+            <div class="card custom-card w-100" style="background-color: transparent; border: none; box-shadow: none;">
                 <div class="card-body p-0">
-                    <div class="p-3 border-bottom border-block-end-dashed d-flex align-items-center justify-content-between">
-                        <div>
-                            <ul class="nav nav-tabs mb-0 tab-style-6 justify-content-start" id="myTab" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link active" id="turnosMes-tab" data-bs-toggle="tab"
-                                        data-bs-target="#turnosMes-tab-pane" type="button" role="tab"
-                                        aria-controls="turnosMes-tab-pane" aria-selected="true"><i
-                                            class="ri-calendar-todo-line me-1 align-middle d-inline-block"></i>Sesiones de Trabajo</button>
-                                </li>
-
-
-
-                                <li class="nav-item" role="presentation">
-                                    <button class="nav-link" id="pagos-tab" data-bs-toggle="tab"
-                                        data-bs-target="#pagos-tab-pane" type="button" role="tab"
-                                        aria-controls="pagos-tab-pane" aria-selected="false"><i
-                                            class="ri-money-dollar-box-line me-1 align-middle d-inline-block"></i>Pago</button>
-                                </li>
-                                
-
-                            </ul>
-                        </div>   
-                        <div>
-                            <div class="dropdown ms-2">
-                                <button class="btn btn-light btn-wave waves-effect waves-light px-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="ti ti-plus fs-18"></i>
+                    <!-- Header con pestañas mejoradas -->
+                    <div class="p-4 border-bottom border-block-end-dashed">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h5 class="mb-0 fw-semibold text-dark">Gestión de Trabajo</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-primary btn-sm btn-wave waves-effect waves-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="ri-add-line me-1"></i>Agregar
                                 </button>
                                 <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#createShiftModal">Agendar Sesión</a></li>
-        
+                                    <li><a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#createShiftModal">
+                                        <i class="ri-calendar-todo-line me-2"></i>Agendar Sesión
+                                    </a></li>
                                 </ul>
                             </div>
-                        </div> 
+                        </div>
+                        
+                        <!-- Pestañas mejoradas -->
+                        <ul class="nav nav-pills nav-pills-custom mb-0" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active d-flex align-items-center" id="turnosMes-tab" data-bs-toggle="tab"
+                                    data-bs-target="#turnosMes-tab-pane" type="button" role="tab"
+                                    aria-controls="turnosMes-tab-pane" aria-selected="true">
+                                    <i class="ri-calendar-todo-line me-2 fs-16"></i>
+                                    <span>Sesiones de Trabajo</span>
+                                    <span class="badge bg-primary-subtle text-primary ms-2 fs-11">{{ count($turnosMesActual) }}</span>
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link d-flex align-items-center" id="pagos-tab" data-bs-toggle="tab"
+                                    data-bs-target="#pagos-tab-pane" type="button" role="tab"
+                                    aria-controls="pagos-tab-pane" aria-selected="false">
+                                    <i class="ri-money-dollar-box-line me-2 fs-16"></i>
+                                    <span>Pagos</span>
+                                    <span class="badge bg-success-subtle text-success ms-2 fs-11">{{ count($pagosOrden) }}</span>
+                                </button>
+                            </li>
+                        </ul>
                     </div>
-                    <div class="p-3">
-                        <div class="tab-content h-100 w-100" id="myTabContent">
-                            <div class="tab-pane show active fade p-0 border-0 h-100" id="turnosMes-tab-pane"
+
+                    <!-- Contenido de las pestañas -->
+                    <div class="p-4">
+                        <div class="tab-content" id="myTabContent">
+                            <!-- Pestaña de Sesiones de Trabajo -->
+                            <div class="tab-pane show active fade" id="turnosMes-tab-pane"
                                 role="tabpanel" aria-labelledby="turnosMes-tab" tabindex="0">
-                                <div class="row d-flex align-items-stretch">
-                                    @foreach ($turnosMesActual as $turno)
-                                    <div class="col-md-6 d-flex">
-                                        <div class="card custom-card flex-fill
-                                            @if($turno->status === 'completed') task-completed-card
-                                            @elseif($turno->status === 'pending') task-pending-card
-                                            @elseif($turno->status === 'canceled') task-inprogress-card
-                                            @elseif($turno->status === 'rescheduled') task-inprogress-card
-                                            @endif"
-                                            data-bs-toggle="modal" data-bs-target="#editShift{{ $turno->id_shift }}" style="cursor: pointer;">
-                                            <div class="card-body">
-                                                <div class="d-flex justify-content-between flex-wrap gap-2">
-                                                    <div>
-                                                        <p class="fw-semibold mb-3 d-flex align-items-center">
-                                                            <a><i class="ri-calendar-todo-line fs-16 op-5 me-1 text-muted"></i></a>
-                                                            {{ $turno->start_at ? ucfirst($turno->start_at->translatedFormat('l')) . ' ' . $turno->start_at->format('j') . ' de ' . ucfirst($turno->start_at->translatedFormat('F')) : $turno->shift_date }}
-                                                        </p>
-
-                                                        <p class="mb-3">
-                                                            <i class="ri-time-line me-1"></i>
-                                                            {{ $turno->start_at ? $turno->start_at->format('H:i') : $turno->start_time }}
-                                                            @if($turno->end_time) - {{ $turno->end_at ? $turno->end_at->format('H:i') : $turno->end_time }} @endif
-                                                        </p>
-
-                                                        <p class="mb-3">Estado Turno: <span class="fs-12 mb-1 fw-semibold
-                                                            @if($turno->status === 'completed') text-success 
-                                                            @elseif($turno->status === 'pending') text-secondary
-                                                            @elseif($turno->status === 'canceled') text-danger
-                                                            @elseif($turno->status === 'rescheduled') text-warning
-                                                            @endif">
-                                                              {{ ucfirst($turno->status) }}
-                                                        </span>
-                                                        </p>
-
-                                                        @if($turno->responsible)
-                                                        <p class="mb-3">Responsable: 
-                                                            <span class="fs-12 mb-1 text-muted">{{ $turno->responsible }}</span>
-                                                        </p>
-                                                        @endif
-                                                        
-                                                        <p class="mb-0">Descripción: 
-                                                            <span class="fs-12 mb-1 text-muted">{{ $turno->description ?: 'Sin descripción' }}</span>
-                                                        </p>
-                                                    </div>                                            
-                                                </div> 
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @endforeach
-                                  
-                                </div>
                                 
-                            </div>
-                            <div class="tab-pane fade p-0 border-0 h-100" id="pagos-tab-pane"
-                                role="tabpanel" aria-labelledby="pagos-tab" tabindex="0">
-                                <div class="row d-flex align-items-stretch">
-                                    @foreach ($pagosOrden as $pago)
-                                            <div class="col-md-6 d-flex">
-                                                <div class="card custom-card flex-fill
-                                            @if($pago->status === 'overdue') task-pending-card
-                                            @elseif($pago->status === 'pending') task-pending-card
-                                            @elseif($pago->status === 'paid') task-completed-card
-                                            @elseif($pago->status === 'void') task-inprogress-card
-                                                    @endif">
-                                                    <div class="card-body">
-                                                        <div class="d-flex justify-content-between flex-wrap gap-2">
-                                                            <div class="flex-grow-1">
-                                                                <p class="fw-semibold mb-3 d-flex align-items-center">
-                                                                    <i class="ri-money-dollar-box-fill fs-16 op-5 me-1 text-muted"></i>
-                                                                    {{ ucfirst($pago->emission_date ? \Carbon\Carbon::parse($pago->emission_date)->translatedFormat('F Y') : 'Sin fecha') }} - {{ $order->client_name }}
-                                                                </p>
-                                                @php
-                                                    $totalPago = $pago->total_amount;
-                                                @endphp
-                                                                <p class="mb-2">Valor Total :
-                                                                    <span class="fs-12 mb-1 text-muted">${{ number_format($totalPago, 0, ',', '.') }}</span>
-                                                                </p>
-                                                                <p class="mb-2">Estado Pago: <span class="fs-12 mb-1 fw-semibold
-                                                                    @if($pago->status === 'overdue') text-warning
-                                                                    @elseif($pago->status === 'pending') text-secondary
-                                                                    @elseif($pago->status === 'paid') text-success
-                                                                    @elseif($pago->status === 'void') text-danger
-                                                                    @endif">
-                                                                      @if($pago->status === 'pending') Pendiente
-                                                                      @elseif($pago->status === 'paid') Pagado
-                                                                      @elseif($pago->status === 'overdue') Atrasado
-                                                                      @elseif($pago->status === 'void') Anulado
-                                                                      @endif
-                                                                </span>
-                                                                </p>
+                                @if($turnosMesActual->isEmpty())
+                                    <div class="text-center py-5">
+                                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                                            <i class="ri-calendar-todo-line text-primary" style="font-size: 32px;"></i>
+                                        </div>
+                                        <h6 class="text-muted mb-2">No hay sesiones programadas</h6>
+                                        <p class="text-muted fs-13 mb-0">Agrega una nueva sesión de trabajo para comenzar</p>
+                                    </div>
+                                @else
+                                    <div class="row g-4">
+                                        @foreach ($turnosMesActual as $turno)
+                                            <div class="col-lg-6">
+                                                <div class="card payment-card h-100"
+                                                    data-bs-toggle="modal" data-bs-target="#editShift{{ $turno->id_shift }}" style="cursor: pointer;">
+                                                    <div class="card-body p-4">
+                                                        <!-- Header with status -->
+                                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                                    <i class="ri-calendar-todo-line text-primary fs-5"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <h6 class="client-name mb-0">
+                                                                        {{ $turno->start_at ? ucfirst($turno->start_at->translatedFormat('l')) . ' ' . $turno->start_at->format('j') . ' de ' . ucfirst($turno->start_at->translatedFormat('F')) : $turno->shift_date }}
+                                                                    </h6>
+                                                                    <small class="payment-date">
+                                                                        {{ $turno->start_at ? $turno->start_at->format('H:i') : $turno->start_time }}
+                                                                        @if($turno->end_time) - {{ $turno->end_at ? $turno->end_at->format('H:i') : $turno->end_time }} @endif
+                                                                    </small>
+                                                                </div>
                                                             </div>
                                                             <div class="dropdown">
-                                                                <button class="btn btn-sm btn-light" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <button class="btn action-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                                                     <i class="ri-more-2-fill"></i>
                                                                 </button>
-                                                                <ul class="dropdown-menu">
+                                                                <ul class="dropdown-menu dropdown-menu-end">
                                                                     <li>
-                                                                        <a class="dropdown-item" href="{{ route('payments.show', $pago->id_payment) }}">
-                                                                            <i class="ri-eye-line me-2"></i>Ver Detalles
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#editPayment{{ $pago->id_payment }}">
-                                                                            <i class="ri-edit-line me-2"></i>Editar Estado
+                                                                        <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#editShift{{ $turno->id_shift }}">
+                                                                            <i class="ri-eye-line me-2 text-primary"></i>Ver Detalles
                                                                         </a>
                                                                     </li>
                                                                 </ul>
                                                             </div>
                                                         </div>
+
+                                                        <!-- Información adicional -->
+                                                        @if($turno->responsible)
+                                                        <div class="mb-3">
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="ri-user-line me-2 fs-14 text-muted"></i>
+                                                                <span class="fs-13 text-muted">{{ $turno->responsible }}</span>
+                                                            </div>
+                                                        </div>
+                                                        @endif
+                                                        
+                                                        @if($turno->description)
+                                                        <div class="mb-3">
+                                                            <small class="text-muted">Descripción:</small>
+                                                            <p class="fs-12 text-muted mb-0 lh-base">
+                                                                {{ Str::limit($turno->description, 100) }}
+                                                            </p>
+                                                        </div>
+                                                        @endif
+
+                                                        <!-- Status Badge -->
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <span class="status-badge 
+                                                                @if($turno->status === 'completed') status-paid
+                                                                @elseif($turno->status === 'pending') status-pending
+                                                                @elseif($turno->status === 'canceled') status-void
+                                                                @elseif($turno->status === 'rescheduled') status-overdue
+                                                                @endif">
+                                                                @if($turno->status === 'completed') 
+                                                                    <i class="ri-checkbox-circle-line me-1"></i>Completado
+                                                                @elseif($turno->status === 'pending') 
+                                                                    <i class="ri-time-line me-1"></i>Pendiente
+                                                                @elseif($turno->status === 'canceled') 
+                                                                    <i class="ri-close-circle-line me-1"></i>Cancelado
+                                                                @elseif($turno->status === 'rescheduled') 
+                                                                    <i class="ri-alarm-warning-line me-1"></i>Reagendado
+                                                                @endif
+                                                            </span>
+                                                            
+                                                            <!-- Status indicator -->
+                                                            <div class="d-flex align-items-center">
+                                                                @if($turno->status === 'completed')
+                                                                    <div class="bg-success rounded-circle" style="width: 8px; height: 8px;"></div>
+                                                                @elseif($turno->status === 'rescheduled')
+                                                                    <div class="bg-warning rounded-circle" style="width: 8px; height: 8px;"></div>
+                                                                @elseif($turno->status === 'pending')
+                                                                    <div class="bg-secondary rounded-circle" style="width: 8px; height: 8px;"></div>
+                                                                @elseif($turno->status === 'canceled')
+                                                                    <div class="bg-danger rounded-circle" style="width: 8px; height: 8px;"></div>
+                                                                @endif
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                    @endforeach
-                                </div>
-                            
+                                        @endforeach
+                                    </div>
+                                @endif
+                            </div>
+
+                            <!-- Pestaña de Pagos -->
+                            <div class="tab-pane fade" id="pagos-tab-pane"
+                                role="tabpanel" aria-labelledby="pagos-tab" tabindex="0">
+                                
+                                @if($pagosOrden->isEmpty())
+                                    <div class="text-center py-5">
+                                        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                                            <i class="ri-money-dollar-box-line text-primary" style="font-size: 32px;"></i>
+                                        </div>
+                                        <h6 class="text-muted mb-2">No hay pagos registrados</h6>
+                                        <p class="text-muted fs-13 mb-0">Los pagos aparecerán aquí cuando se generen</p>
+                                    </div>
+                                @else
+                                    <div class="row g-4">
+                                        @foreach ($pagosOrden as $pago)
+                                            <div class="col-lg-6">
+                                                <div class="card payment-card h-100">
+                                                    <div class="card-body p-4">
+                                                        <!-- Header with status -->
+                                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                                                    <i class="ri-money-dollar-circle-line text-primary fs-5"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <h6 class="client-name mb-0">{{ $order->client_name }}</h6>
+                                                                    <small class="payment-date">{{ ucfirst($pago->emission_date ? \Carbon\Carbon::parse($pago->emission_date)->translatedFormat('F Y') : 'Sin fecha') }}</small>
+                                                                </div>
+                                                            </div>
+                                                            <div class="dropdown">
+                                                                <button class="btn action-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    <i class="ri-more-2-fill"></i>
+                                                                </button>
+                                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                                    <li>
+                                                                        <a class="dropdown-item" href="{{ route('payments.show', $pago->id_payment) }}">
+                                                                            <i class="ri-eye-line me-2 text-primary"></i>Ver Detalles
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item" href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#editPayment{{ $pago->id_payment }}">
+                                                                            <i class="ri-edit-line me-2 text-warning"></i>Editar Pago
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Amount -->
+                                                        @php
+                                                            $totalPago = $pago->total_amount;
+                                                        @endphp
+                                                        <div class="mb-3">
+                                                            <div class="payment-amount">${{ number_format($totalPago, 0, ',', '.') }}</div>
+                                                            <small class="text-muted">Valor total del pago</small>
+                                                        </div>
+
+                                                        <!-- Status Badge -->
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <span class="status-badge 
+                                                                @if($pago->status === 'overdue') status-overdue
+                                                                @elseif($pago->status === 'pending') status-pending
+                                                                @elseif($pago->status === 'paid') status-paid
+                                                                @elseif($pago->status === 'void') status-void
+                                                                @endif">
+                                                                @if($pago->status === 'pending') 
+                                                                    <i class="ri-time-line me-1"></i>Pendiente
+                                                                @elseif($pago->status === 'paid') 
+                                                                    <i class="ri-checkbox-circle-line me-1"></i>Pagado
+                                                                @elseif($pago->status === 'overdue') 
+                                                                    <i class="ri-alarm-warning-line me-1"></i>Atrasado
+                                                                @elseif($pago->status === 'void') 
+                                                                    <i class="ri-close-circle-line me-1"></i>Anulado
+                                                                @endif
+                                                            </span>
+                                                            
+                                                            <!-- Status indicator -->
+                                                            <div class="d-flex align-items-center">
+                                                                @if($pago->status === 'paid')
+                                                                    <div class="bg-success rounded-circle" style="width: 8px; height: 8px;"></div>
+                                                                @elseif($pago->status === 'overdue')
+                                                                    <div class="bg-warning rounded-circle" style="width: 8px; height: 8px;"></div>
+                                                                @elseif($pago->status === 'pending')
+                                                                    <div class="bg-secondary rounded-circle" style="width: 8px; height: 8px;"></div>
+                                                                @elseif($pago->status === 'void')
+                                                                    <div class="bg-danger rounded-circle" style="width: 8px; height: 8px;"></div>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     </div>

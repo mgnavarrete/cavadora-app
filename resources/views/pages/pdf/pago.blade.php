@@ -155,7 +155,8 @@
                 <div class="d-flex align-items-center">
                    
                     <div>
-                        <div class="h6 fw-semibold mb-0">LAS CAVADORAS SERVICIOS - DETALLE DE PAGO #0{{ $payment->id_payment }}</div>
+                        <img src="{{asset('build/assets/images/brand-logos/desktop-logo.png')}}"class="mb-4" style="width: 150px; height: 100%;" alt="">
+                        <div class="h6 fw-semibold mt-4 mb-0">DETALLE DE PAGO #0{{ $payment->id_payment }}</div>
                         <div class="small text-muted">{{ ucfirst(\Carbon\Carbon::parse($payment->emission_date)->translatedFormat('F Y')) }}</div>
                     </div>
                 </div>
