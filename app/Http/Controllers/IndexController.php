@@ -17,7 +17,7 @@ class IndexController extends Controller
     {
         $this->actualizarPagos();
 
-        $userId = Auth::id();
+        $userId = 9;
 
         // Zona horaria CL
         $now = Carbon::now('America/Santiago');
@@ -128,6 +128,22 @@ class IndexController extends Controller
             ->whereNotNull('start_date')
             ->get();
 
+        // Obtener órdenes activas para el carrusel (not_confirmed, confirmed, in_progress)
+        $ordenesActivas = Order::with('users')
+            ->whereHas('users', function ($q) use ($userId) {
+                $q->where('users.id', $userId);
+            })
+            ->whereIn('estado', ['not_confirmed', 'confirmed', 'in_progress'])
+            ->orderByRaw("
+                CASE estado 
+                    WHEN 'not_confirmed' THEN 1
+                    WHEN 'confirmed' THEN 2
+                    WHEN 'in_progress' THEN 3
+                    ELSE 4 
+                END
+            ")
+            ->orderBy('created_at', 'desc')
+            ->get();
 
         // Ya calculado: total pagado en el mes actual ($totalGanadoMesActual)
 
@@ -143,7 +159,8 @@ class IndexController extends Controller
             'sesionesPendientes',
             'turnosCompletadosMesActual',
             'totalEmitidoMesActual',
-            'orders'
+            'orders',
+            'ordenesActivas'
         ));
     }
 
@@ -152,7 +169,7 @@ class IndexController extends Controller
      */
     public function calendar()
     {
-        $userId = Auth::id();
+        $userId = 9;
 
         // Obtener todas las órdenes del usuario con sus fechas
         $orders = Order::with('users')

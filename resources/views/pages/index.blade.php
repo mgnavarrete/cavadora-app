@@ -1,6 +1,243 @@
 @extends('layouts.master')
 
 @section('styles')
+<style>
+    /* Estilos para el carrusel de órdenes */
+    #ordersCarousel .carousel-control-prev,
+    #ordersCarousel .carousel-control-next {
+        width: 50px;
+        height: 50px;
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 50%;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
+
+    #ordersCarousel .carousel-control-prev:hover,
+    #ordersCarousel .carousel-control-next:hover {
+        opacity: 1;
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+
+    #ordersCarousel .carousel-control-prev {
+        left: 15px;
+    }
+
+    #ordersCarousel .carousel-control-next {
+        right: 15px;
+    }
+
+    #ordersCarousel .carousel-inner {
+        padding: 0 20px;
+    }
+
+    /* Mejorar la apariencia de las cards en el carrusel */
+    .team-member-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .team-member-card:hover {
+        border-color: #007bff;
+    }
+
+    /* Indicadores del carrusel */
+    #ordersCarousel .carousel-indicators {
+        bottom: -50px;
+    }
+
+    #ordersCarousel .carousel-indicators button {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin: 0 5px;
+        background-color: #dee2e6;
+        border: none;
+    }
+
+    #ordersCarousel .carousel-indicators button.active {
+        background-color: #007bff;
+    }
+
+    /* Responsive para móviles */
+    @media (max-width: 768px) {
+        #ordersCarousel .carousel-control-prev,
+        #ordersCarousel .carousel-control-next {
+            width: 40px;
+            height: 40px;
+        }
+        
+        #ordersCarousel .carousel-control-prev {
+            left: 10px;
+        }
+
+        #ordersCarousel .carousel-control-next {
+            right: 10px;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const filterDropdown = document.getElementById('filterDropdown');
+    const filterText = document.getElementById('filterText');
+    const filterOptions = document.querySelectorAll('.filter-option');
+    const carousel = document.getElementById('ordersCarousel');
+    const carouselInner = carousel.querySelector('.carousel-inner');
+    
+    // Datos de las órdenes (se pasan desde PHP)
+    const ordenesActivas = @json($ordenesActivas);
+    
+    // Función para filtrar y regenerar el carrusel
+    function filterCarousel(filter) {
+        let filteredOrders = ordenesActivas;
+        
+        if (filter !== 'all') {
+            filteredOrders = ordenesActivas.filter(orden => orden.estado === filter);
+        }
+        
+        // Generar chunks de 3
+        const chunks = [];
+        for (let i = 0; i < filteredOrders.length; i += 3) {
+            chunks.push(filteredOrders.slice(i, i + 3));
+        }
+        
+        // Limpiar carrusel actual
+        carouselInner.innerHTML = '';
+        
+        if (chunks.length === 0) {
+            carouselInner.innerHTML = `
+                <div class="carousel-item active">
+                    <div class="row g-3 p-3">
+                        <div class="col-12 text-center">
+                            <div class="alert alert-info">
+                                No hay órdenes con este filtro
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Generar nuevo carrusel
+            chunks.forEach((chunk, index) => {
+                const carouselItem = document.createElement('div');
+                carouselItem.className = `carousel-item ${index === 0 ? 'active' : ''}`;
+                
+                let rowContent = '<div class="row g-3 p-3">';
+                
+                chunk.forEach(orden => {
+                    const estadoColor = getEstadoColor(orden.estado);
+                    const estadoTexto = getEstadoTexto(orden.estado);
+                    
+                    rowContent += `
+                        <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                            <a href="/orders/${orden.id_order}" class="text-decoration-none">
+                                <div class="card custom-card team-member-card" style="height: 250px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                    <div class="teammember-cover-image">
+                                        <img src="/build/assets/images/profile/machine.jpg" class="object-fit-cover card-img-top" style="height: 80px;">
+                                    </div>
+                                    <div class="card-body p-3 h-100">
+                                        <div class="d-flex justify-content-between align-items-start mb-3">
+                                            <h6 class="mb-0 fw-semibold fs-15 text-dark">${orden.client_name}</h6>
+                                            <span class="badge ${estadoColor} fs-10">${estadoTexto}</span>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                ${orden.cliente_rut ? `
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <i class="ti ti-id fs-12 text-muted me-2"></i>
+                                                        <span class="fs-12 text-muted">${orden.cliente_rut}</span>
+                                                    </div>
+                                                ` : ''}
+                                                ${orden.client_phone ? `
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        <i class="ti ti-phone fs-12 text-muted me-2"></i>
+                                                        <span class="fs-12 text-muted">${orden.client_phone}</span>
+                                                    </div>
+                                                ` : ''}
+                                                ${orden.client_address ? `
+                                                    <div class="d-flex align-items-start">
+                                                        <i class="ti ti-map-pin fs-12 text-muted me-2 mt-1"></i>
+                                                        <span class="fs-12 text-muted">${orden.client_address.length > 20 ? orden.client_address.substring(0, 20) + '...' : orden.client_address}</span>
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                            <div class="col-6">
+                                                ${orden.work_info ? `
+                                                    <div class="d-flex align-items-start h-100">
+                                                        <i class="ti ti-tools fs-12 text-primary me-2 mt-1"></i>
+                                                        <div class="flex-grow-1">
+                                                            <p class="mb-1 fs-11 fw-semibold text-primary">Trabajo:</p>
+                                                            <p class="mb-0 fs-12 text-muted lh-sm">${orden.work_info}</p>
+                                                        </div>
+                                                    </div>
+                                                ` : `
+                                                    <div class="d-flex align-items-center justify-content-center h-100">
+                                                        <span class="fs-12 text-muted">Sin información de trabajo</span>
+                                                    </div>
+                                                `}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    `;
+                });
+                
+                rowContent += '</div>';
+                carouselItem.innerHTML = rowContent;
+                carouselInner.appendChild(carouselItem);
+            });
+        }
+        
+        // Reiniciar carrusel con velocidad lenta
+        const bsCarousel = new bootstrap.Carousel(carousel, { 
+            interval: 8000, // 8 segundos entre transiciones
+            wrap: true,
+            touch: true
+        });
+    }
+    
+    // Funciones auxiliares para colores y textos
+    function getEstadoColor(estado) {
+        const colors = {
+            'not_confirmed': 'bg-warning',
+            'confirmed': 'bg-info',
+            'in_progress': 'bg-primary',
+            'done': 'bg-success',
+            'canceled': 'bg-danger'
+        };
+        return colors[estado] || 'bg-secondary';
+    }
+    
+    function getEstadoTexto(estado) {
+        const textos = {
+            'not_confirmed': 'No Confrimada',
+            'confirmed': 'Confirmada',
+            'in_progress': 'En Progreso',
+            'done': 'Completado',
+            'canceled': 'Cancelado'
+        };
+        return textos[estado] || estado;
+    }
+    
+    // Event listeners para los filtros
+    filterOptions.forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.preventDefault();
+            const filter = this.getAttribute('data-filter');
+            const text = this.textContent;
+            
+            filterText.textContent = text;
+            filterCarousel(filter);
+        });
+    });
+});
+</script>
 @endsection
 
 @section('content')
@@ -164,6 +401,142 @@
             </div>
         </div>
     </div>
+
+    <!-- Carrusel de Órdenes Activas -->
+    @if($ordenesActivas->count() > 0)
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card custom-card border-0 bg-transparent">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title fw-semibold fs-18 mb-0">Órdenes Activas</h5>
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="ti ti-filter me-1"></i>
+                                <span id="filterText">Todas</span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="filterDropdown">
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="all">Todas</a></li>
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="not_confirmed">No Confirmadas</a></li>
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="confirmed">Confirmadas</a></li>
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="in_progress">En Progreso</a></li>
+                            </ul>
+                        </div>
+                        <a href="{{ route('orders.index') }}" class="btn btn-sm btn-primary">Ver Todas</a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div id="ordersCarousel" class="carousel slide border-0" data-bs-ride="carousel" data-bs-interval="5000">
+                        <div class="carousel-inner">
+                            @php
+                                $chunks = $ordenesActivas->chunk(3); // 3 cards por slide
+                            @endphp
+                            @foreach($chunks as $index => $chunk)
+                                <div class="carousel-item {{ $index === 0 ? 'active' : '' }}">
+                                    <div class="row g-3 p-3">
+                                        @foreach($chunk as $cliente)
+                                            @php
+                                                $estadoColor = match(strtolower($cliente->estado)) {
+                                                    'not_confirmed' => 'bg-warning',
+                                                    'confirmed' => 'bg-info',
+                                                    'in_progress' => 'bg-primary',
+                                                    'done' => 'bg-success',
+                                                    'canceled' => 'bg-danger',
+                                                    default => 'bg-secondary'
+                                                };
+                                                $estadoTexto = match(strtolower($cliente->estado)) {
+                                                    'not_confirmed' => 'No Confrimada',
+                                                    'confirmed' => 'Confirmada',
+                                                    'in_progress' => 'En Progreso',
+                                                    'done' => 'Completado',
+                                                    'canceled' => 'Cancelado',
+                                                    default => ucfirst($cliente->estado)
+                                                };
+                                            @endphp
+                                            <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-6 col-sm-12">
+                                                <a href="{{ route('orders.show', $cliente->id_order) }}" class="text-decoration-none">
+                                                    <div class="card custom-card team-member-card" style="height: 250px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 15px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                                        <div class="teammember-cover-image">
+                                                            <img src="{{asset('build/assets/images/profile/machine.jpg')}}" class="object-fit-cover card-img-top" style="height: 80px;">
+                                                        </div> 
+                                                        <div class="card-body p-3 h-100">
+                                                            <!-- Header con estado y nombre -->
+                                                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                                                <h6 class="mb-0 fw-semibold fs-15 text-dark">{{ $cliente->client_name }}</h6>
+                                                                <span class="badge {{ $estadoColor }} fs-10">{{ $estadoTexto }}</span>
+                                                            </div>
+                                                            
+                                                            <!-- Contenido en dos columnas -->
+                                                            <div class="row g-2">
+                                                                <!-- Columna izquierda: Información de contacto -->
+                                                                <div class="col-6">
+                                                                    @if($cliente->cliente_rut)
+                                                                        <div class="d-flex align-items-center mb-2">
+                                                                            <i class="ti ti-id fs-12 text-muted me-2"></i>
+                                                                            <span class="fs-12 text-muted">{{ $cliente->cliente_rut }}</span>
+                                                                        </div>
+                                                                    @endif
+                                                                    @if($cliente->client_phone)
+                                                                        <div class="d-flex align-items-center mb-2">
+                                                                            <i class="ti ti-phone fs-12 text-muted me-2"></i>
+                                                                            <span class="fs-12 text-muted">{{ $cliente->client_phone }}</span>
+                                                                        </div>
+                                                                    @endif
+                                                                    @if($cliente->client_address)
+                                                                        <div class="d-flex align-items-start">
+                                                                            <i class="ti ti-map-pin fs-12 text-muted me-2 mt-1"></i>
+                                                                            <span class="fs-12 text-muted">{{ Str::limit($cliente->client_address, 20) }}</span>
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                                
+                                                                <!-- Columna derecha: Información de trabajo -->
+                                                                <div class="col-6">
+                                                                    @if($cliente->work_info)
+                                                                        <div class="d-flex align-items-start h-100">
+                                                                            <i class="ti ti-tools fs-12 text-primary me-2 mt-1"></i>
+                                                                            <div class="flex-grow-1">
+                                                                                <p class="mb-1 fs-11 fw-semibold text-primary">Trabajo:</p>
+                                                                                <p class="mb-0 fs-12 text-muted lh-sm">{{ $cliente->work_info }}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    @else
+                                                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                                                            <span class="fs-12 text-muted">Sin información de trabajo</span>
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                        @if($chunks->count() > 1)
+                            <button class="carousel-control-prev" type="button" data-bs-target="#ordersCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Anterior</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#ordersCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Siguiente</span>
+                            </button>
+                            <div class="carousel-indicators">
+                                @foreach($chunks as $index => $chunk)
+                                    <button type="button" data-bs-target="#ordersCarousel" data-bs-slide-to="{{ $index }}" class="{{ $index === 0 ? 'active' : '' }}" aria-current="{{ $index === 0 ? 'true' : 'false' }}" aria-label="Slide {{ $index + 1 }}"></button>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
    
     <div class="container-fluid">
         <div class="row">
@@ -266,7 +639,7 @@
                                                                 default       => $evento['status']
                                                             };
                                                             @endphp
-                                                            <span class="float-end badge {{ $colorEstado }} timeline-badge mt-0 mt-sm-0">
+                                                            <span class=" badge {{ $colorEstado }} mt-0 mt-sm-0">
                                                                 {{ ucfirst($estadoShift) }}
                                                             </span>
                                                         </div>
@@ -398,3 +771,4 @@
 {{-- Los modales antiguos de sesiones/reuniones no aplican.
      Si agregarás modales para editar turnos/pagos, inclúyelos aquí. --}}
 @endsection
+

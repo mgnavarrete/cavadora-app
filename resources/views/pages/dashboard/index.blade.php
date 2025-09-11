@@ -208,7 +208,7 @@
                 <div class="card custom-card">
                     <div class="card-header">
                         <div class="card-title">
-                            <i class="ri-user-star-line me-2"></i>Top 5 Pacientes por Ingresos
+                            <i class="ri-user-star-line me-2"></i>Top 5 Órdenes por Ingresos
                         </div>
                     </div>
                     <div class="card-body">
@@ -261,7 +261,7 @@
                             <div class="col-md-3">
                                 <div class="border-end">
                                     <h4 class="fw-semibold text-warning">{{ $metricas['clientes_activos'] }}</h4>
-                                    <p class="text-muted mb-0">Pacientes Activos</p>
+                                    <p class="text-muted mb-0">Órdenes Activas</p>
                                 </div>
                             </div>
                             <div class="col-md-3">
