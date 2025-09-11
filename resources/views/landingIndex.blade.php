@@ -176,8 +176,8 @@
                                             <div class="fs-16 mb-5 text-fixed-white op-7">Resolvemos excavaciones en jardines, piscinas, zanjas, nivelación de suelos y más. Accedemos a lugares donde una máquina grande no puede.</div>
                                             <div class="d-flex gap-3 flex-wrap">
                                                 <a href="{{route('orders.createFromClient')}}" class="btn btn-primary btn-wave">Rellenar formulario</a>
-                                                <a href="https://wa.me/5695193903" class="btn btn-outline-light btn-wave" target="_blank"><i class="ti ti-brand-whatsapp fs-15"></i>Agendar por WhatsApp</a>
-                                                <a href="https://instagram.com/la.cavadora" class="btn btn-outline-light btn-wave" target="_blank"><i class="ti ti-brand-instagram fs-15"></i>Siguenos</a>
+                                                <a href="https://wa.me/5695193903" class="btn btn-outline-light btn-wave" target="_blank"><i class="ti ti-brand-whatsapp fs-15"></i> Agendar por WhatsApp</a>
+                                                <a href="https://instagram.com/la.cavadora" class="btn btn-outline-light btn-wave" target="_blank"><i class="ti ti-brand-instagram fs-15"></i> Siguenos</a>
                                             </div>
                                         </div>
                                     </div>
@@ -395,7 +395,7 @@
                                         <p class="fs-12 fw-semibold text-success mb-1"><span class="landing-section-heading">QUIÉNES SOMOS</span></p>
                                         <h2 class="fw-semibold mb-3 text-fixed-white">En La Cavadora acercamos maquinaria compacta a proyectos reales</h2>
                                         <p class="text-fixed-white op-8 fs-15 mb-4 fw-normal">Contamos con operadores experimentados y un enfoque en seguridad, prolijidad y buen trato. Nuestra experiencia nos permite ofrecer soluciones eficientes para proyectos de excavación en espacios reducidos.</p>
-                                        <div class="d-flex gap-3 flex-wrap justify-content-center justify-content-lg-start">
+                                        <div class="d-flex gap-3 flex-wrap justify-content-center justify-content-lg-start mb-4">
                                             <a href="{{route('orders.createFromClient')}}" class="btn btn-primary btn-wave">Rellenar formulario</a>
                                             <a href="https://wa.me/5695193903" class="btn btn-outline-light btn-wave" target="_blank"><i class="ti ti-brand-whatsapp fs-20"></i></a>
                                             <a href="https://instagram.com/la.cavadora" class="btn btn-outline-light btn-wave" target="_blank"><i class="ti ti-brand-instagram fs-20"></i></a>
@@ -536,8 +536,8 @@
                                                 </span>
                                             </div>
                                             <h6 class="fw-semibold mb-2">Email</h6>
-                                            <p class="text-muted mb-3">tu-email@lacavadora.cl</p>
-                                            <a href="mailto:tu-email@lacavadora.cl" class="btn btn-outline-light btn-sm">Enviar email</a>
+                                            <p class="text-muted mb-3">micavadora@gmail.com</p>
+                                            <a href="mailto:micavadora@gmail.com" class="btn btn-outline-light btn-sm">Enviar email</a>
                                         </div>
                                     </div>
                                 </div>
@@ -557,7 +557,7 @@
                                 </div>
                             </div>
                             <div class="mt-5">
-                                <a href="{{route('orders.createFromClient')}}" class="btn btn-primary btn-wave btn-lg">Agendar mi proyecto</a>
+                                <a href="{{route('orders.createFromClient')}}" class="btn btn-primary btn-wave btn-lg">Agendar Mi Proyecto</a>
                             </div>
                         </div>
                     </section>
@@ -639,10 +639,10 @@
                     <!-- End:: Section-11 -->
 
                     <!-- Sticky CTA Mobile -->
-                    <div class="d-block d-lg-none sticky-bottom">
-                        <div class="bg-primary text-center p-3">
-                            <a href="{{route('orders.createFromClient')}}" class="btn btn-light btn-lg w-100 fw-semibold">
-                                <i class="ri-phone-line me-2"></i>Pedir servicio
+                    <div class="d-block d-lg-none sticky-bottom col-md-8">
+                        <div class="bg-cavadora-secondary text-center p-3">
+                            <a href="{{route('orders.createFromClient')}}" class="btn btn-primary btn-lg w-100 fw-semibold">
+                                <i class="me-2"></i>Agendar Mi Proyecto
                             </a>
                         </div>
                     </div>

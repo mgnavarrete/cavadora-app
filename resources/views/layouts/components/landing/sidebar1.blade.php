@@ -41,8 +41,8 @@
                                 </li>
                                 <!-- End::slide -->
                                 <li class="slide">
-                                    <a href="/login" class="side-menu__item">
-                                        <i class="ti ti-login me-2"></i>
+                                    <a href="/login" class="side-menu__item" onclick="window.location.href='/login'">
+                                        <i class="ti ti-login"></i>
                                         <span class="side-menu__label"></span>
                                     </a>
                                 </li>
