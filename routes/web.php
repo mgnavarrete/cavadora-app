@@ -72,6 +72,9 @@ Route::post('/form-cliente', [OrderController::class, 'storeFromClient'])->name(
 
 // RUTA DE PRUEBA PARA EMAIL (TEMPORAL)
 Route::get('/test-email', function () {
+    // Configurar mail para usar log driver para testing
+    config(['mail.default' => 'log']);
+    
     $order = new \App\Models\Order([
         'client_name' => 'Cliente de Prueba',
         'cliente_rut' => '12.345.678-9',
@@ -84,8 +87,13 @@ Route::get('/test-email', function () {
     ]);
     
     try {
+        // Email a La Cavadora
         \Mail::to('info@lacavadora.cl')->send(new \App\Mail\NuevaSolicitudTrabajo($order));
-        return 'Email enviado exitosamente!';
+        
+        // Email de confirmación al cliente
+        \Mail::to($order->cliente_email)->send(new \App\Mail\ConfirmacionSolicitudCliente($order));
+        
+        return 'Emails enviados exitosamente! Revisa el archivo de log en storage/logs/laravel.log';
     } catch (\Exception $e) {
         return 'Error enviando email: ' . $e->getMessage();
     }

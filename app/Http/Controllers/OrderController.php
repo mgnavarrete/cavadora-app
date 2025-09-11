@@ -6,10 +6,14 @@ use Illuminate\Http\Request;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use App\Models\Order;
 use App\Models\User;
 use App\Models\Payment;
 use App\Models\UserOrder;
+use App\Mail\NuevaSolicitudTrabajo;
+use App\Mail\ConfirmacionSolicitudCliente;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -362,6 +366,9 @@ class OrderController extends Controller
 
             DB::commit();
 
+            // Enviar email de notificación
+            $this->enviarEmailNotificacion($order);
+
             return redirect()->route('orders.createFromClient')
                 ->with('success', '¡Solicitud enviada exitosamente! Nos pondremos en contacto contigo pronto.');
         } catch (\Exception $e) {
@@ -369,6 +376,49 @@ class OrderController extends Controller
             return redirect()->back()
                 ->withInput()
                 ->withErrors(['error' => 'Error al enviar la solicitud: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Enviar emails de notificación
+     */
+    private function enviarEmailNotificacion($order)
+    {
+        try {
+            // Intentar enviar por SMTP si está configurado, sino usar log
+            if (config('mail.mailers.smtp.username') && config('mail.mailers.smtp.password')) {
+                // Usar SMTP real
+                
+                // 1. Email a La Cavadora (info@lacavadora.cl)
+                Mail::to('info@lacavadora.cl')->send(new NuevaSolicitudTrabajo($order));
+                Log::info('Email de nueva solicitud enviado por SMTP a La Cavadora para: ' . $order->client_name);
+                
+                // 2. Email de confirmación al cliente (si tiene email)
+                if ($order->cliente_email) {
+                    Mail::to($order->cliente_email)->send(new ConfirmacionSolicitudCliente($order));
+                    Log::info('Email de confirmación enviado por SMTP al cliente: ' . $order->cliente_email);
+                } else {
+                    Log::info('No se envió email de confirmación al cliente porque no tiene email registrado');
+                }
+                
+            } else {
+                // Usar log driver como fallback
+                config(['mail.default' => 'log']);
+                
+                // 1. Email a La Cavadora (info@lacavadora.cl)
+                Mail::to('info@lacavadora.cl')->send(new NuevaSolicitudTrabajo($order));
+                Log::info('Email de nueva solicitud guardado en log para La Cavadora: ' . $order->client_name);
+                
+                // 2. Email de confirmación al cliente (si tiene email)
+                if ($order->cliente_email) {
+                    Mail::to($order->cliente_email)->send(new ConfirmacionSolicitudCliente($order));
+                    Log::info('Email de confirmación guardado en log para el cliente: ' . $order->cliente_email);
+                } else {
+                    Log::info('No se generó email de confirmación al cliente porque no tiene email registrado');
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error enviando emails de notificación: ' . $e->getMessage());
         }
     }
 }
