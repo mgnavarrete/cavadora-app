@@ -37,12 +37,12 @@
                     <div class="header-content-right">
 
                         <!-- Start::header-element -->
-                        {{-- <div class="header-element">
+                        <div class="header-element">
                             <a href="/login" class="btn btn-outline-primary btn-sm d-flex align-items-center">
                                 <i class="ri-user-line me-1"></i>
                                 <span class="d-none d-md-inline">Acceder</span>
                             </a>
-                        </div> --}}
+                        </div>
                         <!-- End::header-element -->
 
                     </div>

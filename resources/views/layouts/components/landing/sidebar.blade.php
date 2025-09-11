@@ -60,10 +60,10 @@
                                 </li>
                                 <!-- End::slide -->
                                 <li class="slide">
-                                    <a href="{{ route('login.page') }}" class="side-menu__item">
+                                    <button type="button" class="side-menu__item btn btn-link" onclick="window.location.href='/login'">
                                         <i class="ti ti-login"></i>
-                                
-                                    </a>
+                                       
+                                    </button>
                                 </li>
 
                             </ul>

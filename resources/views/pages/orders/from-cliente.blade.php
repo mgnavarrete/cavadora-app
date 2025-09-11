@@ -138,6 +138,7 @@
                                             <ul class="mb-0 mt-2">
                                                 <li><strong>Costo por hora:</strong> $18.750 (valor estándar)</li>
                                                 <li><strong>Duración mínima:</strong> 8 horas por turno de trabajo</li>
+                                                <li><strong>Costos Extras:</strong>Pueden existir costos adicionales que no dependen de las horas trabajadas</li>
                                             </ul>
                                             <br>
                                             <strong>Despues de enviar la solicitud, nos pondremos en contacto para coordinar más detalles.</strong>

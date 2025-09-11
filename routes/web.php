@@ -69,3 +69,24 @@ Route::middleware(['auth'])->group(function () {
 // RUTA PÚBLICA PARA CLIENTES
 Route::get('/form-cliente', [OrderController::class, 'createFromClient'])->name('orders.createFromClient');
 Route::post('/form-cliente', [OrderController::class, 'storeFromClient'])->name('orders.storeFromClient');
+
+// RUTA DE PRUEBA PARA EMAIL (TEMPORAL)
+Route::get('/test-email', function () {
+    $order = new \App\Models\Order([
+        'client_name' => 'Cliente de Prueba',
+        'cliente_rut' => '12.345.678-9',
+        'client_phone' => '+56912345678',
+        'cliente_email' => 'cliente@prueba.com',
+        'client_address' => 'Dirección de Prueba 123, Santiago',
+        'work_info' => 'Trabajo de prueba para excavación de jardín',
+        'estado' => 'not_confirmed',
+        'created_at' => now(),
+    ]);
+    
+    try {
+        \Mail::to('info@lacavadora.cl')->send(new \App\Mail\NuevaSolicitudTrabajo($order));
+        return 'Email enviado exitosamente!';
+    } catch (\Exception $e) {
+        return 'Error enviando email: ' . $e->getMessage();
+    }
+});
